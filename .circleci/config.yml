@@ -61,7 +61,7 @@ jobs:
             sudo apt-get -y install python3-pip
             fi
        - aws-cli/setup:
-          profile-name: data_champs
+          profile-name: default
        - run: 
           name: install lightsail ctl
           command: |

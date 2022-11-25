@@ -13,6 +13,8 @@ logging.basicConfig(format='%(asctime)s:%(levelname)s:%(filename)s:%(funcName)s:
  
  
 app = Flask(__name__, template_folder='.')
+# 16 gb https://flask.palletsprojects.com/en/2.2.x/patterns/fileuploads/#:~:text=Improving%20Uploads&text=The%20code%20above%20will%20limit,will%20raise%20a%20RequestEntityTooLarge%20exception.
+app.config['MAX_CONTENT_LENGTH'] = 16 * 1000 * 1000
 app.secret_key = "somesecretkey"
 
 app.config['MAX_CONTENT_LENGTH'] = 1024 * 1024
@@ -60,6 +62,12 @@ def upload_files():
         logging.info('Upload is successful')
         resp = dict(message='OK')
         return make_response(jsonify(resp), 200)
+
+
+@app.errorhandler(413)
+def request_entity_too_large(error):
+    resp = dict(message='File Too Large')
+    return make_response(jsonify(resp), 413)
 
  
 if __name__ == '__main__':

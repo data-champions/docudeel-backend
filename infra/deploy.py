@@ -142,7 +142,7 @@ def deploy_service(config_fp) -> None:
 
 
 def fail_if_use_old_cli():
-    out = run_bash('aws --version')
+    out = run_bash(f'{AWS} --version')
     print(f'{out=}')
     uses_old = out.startswith('aws-cli/1.')
     if uses_old:

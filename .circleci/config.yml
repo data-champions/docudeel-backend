@@ -61,7 +61,7 @@ jobs:
             sudo apt-get -y install python3-pip
             fi
        - aws-cli/setup:
-          profile-name: default
+          profile-name: data_champs
        - run: 
           name: install lightsail ctl
           command: |
@@ -80,11 +80,11 @@ workflows:
   test:
     jobs:
       - unit_test_job:
-          context: onexus-data-platform
+          context: data-champions-prod
   deploy-to-lightsail:
     jobs:
       - deploy:
-          context: onexus-data-platform
+          context: data-champions-prod
           # TODO
           # filters:
           #   branches:

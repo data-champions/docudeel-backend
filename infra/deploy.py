@@ -103,6 +103,7 @@ def create_service_if_not_exist(service_name: str,
 def push_container_img(service_name, img_name_and_tag) -> str:
     push_image = f"""aws lightsail push-container-image --service-name {service_name} --label {service_name} --image {img_name_and_tag}"""
     out = run_bash(push_image)
+    print(f'{out=}')
     service_name_lightsail = [x for x in re.findall('"([^"]*)"', out)
                               if service_name in x]
     if not service_name_lightsail:

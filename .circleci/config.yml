@@ -1,0 +1,92 @@
+version: 2.1
+
+orbs:
+  aws-cli: circleci/aws-cli@2.0
+
+
+executors:
+  python:
+    working_directory: ~/project
+    docker:
+      - image: cimg/python:3.8.13
+
+commands:
+  setup-environment:
+    steps:
+      - checkout
+      - restore_cache: # **restores saved dependency cache if the Branch key template or requirements.txt files have not changed since the previous run**
+            key: deps1-{{ .Branch }}-{{ checksum "requirements_dev.txt" }}
+      - run: # install and activate virtual environment with pip
+            command: |
+              python3 -m venv venv
+              . venv/bin/activate
+              make setup-full
+
+      - save_cache: # ** special step to save dependency cache **
+            key: deps1-{{ .Branch }}-{{ checksum "requirements_dev.txt" }}
+            paths:
+              - "venv"
+      - run:
+          command: |
+           . venv/bin/activate
+           make check_branch_updated
+          name: Check latest version of main is used
+
+
+jobs:
+  unit_test_job:
+    executor: python
+    resource_class: large
+    steps:
+      - setup-environment
+      - run:
+          command: |
+           . venv/bin/activate
+           make test
+          name: Test
+  deploy:
+    docker:
+      - image: cimg/python:3.8.13
+    steps:
+       - checkout
+       - setup_remote_docker
+       - run:
+          name: Install python
+          command: |
+            sudo apt-get update
+            if ! [ -x "$(which python3)" ]; then
+            sudo apt-get -y install python3
+            fi
+            if ! [ -x "$(which pip3)" ]; then
+            sudo apt-get -y install python3-pip
+            fi
+       - aws-cli/setup:
+          profile-name: default
+       - run: 
+          name: install lightsail ctl
+          command: |
+           sudo curl "https://s3.us-west-2.amazonaws.com/lightsailctl/latest/linux-amd64/lightsailctl" -o "/usr/local/bin/lightsailctl"
+           sudo chmod +x /usr/local/bin/lightsailctl 
+       - run:
+          name: Deps
+          command: |
+            make setup-run
+       - run:
+          name: deploy to lightsail
+          command: |
+            make deploy
+
+workflows:
+  test:
+    jobs:
+      - unit_test_job:
+          context: onexus-data-platform
+  deploy-to-lightsail:
+    jobs:
+      - deploy:
+          context: onexus-data-platform
+          # TODO
+          # filters:
+          #   branches:
+          #     only:
+          #       - main

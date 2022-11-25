@@ -35,3 +35,18 @@ build_and_run:
  
 # -- to remove the created image --
 # docker rmi pyflaskfileupload
+
+setup-docker:
+	pip install -r requirements.txt --no-cache-dir
+run-docker:
+	streamlit run app.py --server.runOnSave false
+
+check_branch_updated:
+	python infra/check_latest_main.py
+
+deploy:
+	# TODO implement. To avoid the slow load time for the first time
+	# and add to Dockerfile at build time
+	# python new/secrets.py
+	# python new/info.py
+	python infra/deploy.py

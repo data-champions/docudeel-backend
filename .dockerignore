@@ -1,0 +1,12 @@
+cdk.out/**/*
+cdk.out
+testing/*
+
+.circleci/*
+.pytest_cache/*
+.envrc
+
+*.pkl
+*.csv
+.vscode/*
+.git/*

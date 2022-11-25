@@ -18,7 +18,7 @@ send_bad_request:
 send_good_request_server: 
 	# data.json could be any file  (pdf, png, zip)
 	curl -i -X POST -H "Content-Type: multipart/form-data" \
-		-F "file=@see-thru.pdf" -F "user_id=yooo" \
+		-F "file=@Slides.pptx" -F "user_id=yooo" \
 		-F "email=pizaaa" -F "description=invoice_n2" \
 		https://docudeel-backend.als8v4i7d204u.eu-central-1.cs.amazonlightsail.com/
 

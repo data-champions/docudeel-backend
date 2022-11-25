@@ -15,6 +15,24 @@ send_bad_request:
 		-F "email=pizaaa" \
 		http://127.0.0.1:5000/
 
+send_good_request_server: 
+	# data.json could be any file  (pdf, png, zip)
+	curl -i -X POST -H "Content-Type: multipart/form-data" \
+		-F "file=@data.json" -F "user_id=yooo" \
+		-F "email=pizaaa" -F "description=invoice_n2" \
+		https://docudeel-backend.als8v4i7d204u.eu-central-1.cs.amazonlightsail.com/
+
+
+
+send_bad_request_server: 
+	# data.json could be any file  (pdf, png, zip)
+	curl -i -X POST -H "Content-Type: multipart/form-data" \
+		-F "file=@data.json" -F "user_id=yooo" \
+		-F "email=pizaaa" \
+		https://docudeel-backend.als8v4i7d204u.eu-central-1.cs.amazonlightsail.com/
+
+
+
 
 build_and_run:
 	docker-compose up -d --build &&  docker logs --follow pyflaskfileupload

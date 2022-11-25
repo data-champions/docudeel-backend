@@ -66,4 +66,4 @@ if __name__ == '__main__':
  
     # Development only: run "python app.py" and open http://localhost:5000
     server_port = os.environ.get('PORT', '5000')
-    app.run(debug=False, port=server_port, host='0.0.0.0')
+    app.run(debug=True, port=server_port, host='0.0.0.0')

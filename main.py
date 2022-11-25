@@ -17,10 +17,6 @@ app = Flask(__name__, template_folder='.')
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1000 * 1000
 app.secret_key = "somesecretkey"
 
-app.config['MAX_CONTENT_LENGTH'] = 1024 * 1024
- 
- 
- 
 @app.route('/', methods=['GET'])
 def index():
     logging.info('Showing index page')

@@ -24,6 +24,8 @@ from urllib import request
 
 SLACK_URL = 'https://hooks.slack.com/services/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'  # noqa :E501
 
+AWS = '/usr/local/bin/aws'
+
 
 def run_bash(command: str) -> None:
     try:
@@ -87,21 +89,21 @@ def build_image(img_name_and_tag: str) -> None:
 
 def create_service_if_not_exist(service_name: str,
                                 size: str = 'nano') -> None:
-    list_images = f"aws lightsail get-container-services --service-name {service_name}"
+    list_images = f"{AWS} lightsail get-container-services --service-name {service_name}"
     out = run_bash(list_images)
     if out is not None:
-        cmd = f"aws lightsail update-container-services --service-name {service_name} --power {size} --scale 1"
+        cmd = f"{AWS} lightsail update-container-services --service-name {service_name} --power {size} --scale 1"
         print('service already exist... updating')
     else:
         print('service does not exist... creating')
-        cmd = f"""aws lightsail create-container-service --service-name {service_name} --power {size} --scale 1"""
+        cmd = f"""{AWS} lightsail create-container-service --service-name {service_name} --power {size} --scale 1"""
     out = run_bash(cmd)
     print(out)
     return None
 
 
 def push_container_img(service_name, img_name_and_tag) -> str:
-    push_image = f"""aws lightsail push-container-image --service-name {service_name} --label {service_name} --image {img_name_and_tag}"""
+    push_image = f"""{AWS} lightsail push-container-image --service-name {service_name} --label {service_name} --image {img_name_and_tag}"""
     out = run_bash(push_image)
     print(f'{out=}')
     service_name_lightsail = [x for x in re.findall('"([^"]*)"', out)
@@ -129,7 +131,7 @@ def send_slack_message(message: str,
 
 
 def deploy_service(config_fp) -> None:
-    deploy = f"""aws lightsail create-container-service-deployment --cli-input-json file://{config_fp}"""
+    deploy = f"""{AWS} lightsail create-container-service-deployment --cli-input-json file://{config_fp}"""
     deploy_out = run_bash(deploy)
     if deploy_out is None:
         ci_url = 'https://app.circleci.com/pipelines/github/o-nexus-org/gui?filter=all'
@@ -139,9 +141,17 @@ def deploy_service(config_fp) -> None:
     return None
 
 
+def fail_if_use_old_cli():
+    out = run_bash('aws --version')
+    print(f'{out=}')
+    uses_old = out.startswith('aws-cli/1.')
+    if uses_old:
+        raise ValueError("Using version 1x of the CLI")
+
 if __name__ == '__main__':
 
     size = 'nano'
+    fail_if_use_old_cli()
     service_name = 'docudeel-backend'
     git_hash = get_last_git_hash()
     img_name_and_tag = f"gui:{git_hash}"

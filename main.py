@@ -1,7 +1,7 @@
 import logging
 import os.path
 import os
- 
+from flask_cors import CORS
 from flask import Flask, render_template, request, redirect, flash, jsonify, make_response
 from werkzeug.utils import secure_filename
  
@@ -18,6 +18,7 @@ app = Flask(__name__, template_folder='.')
 MAX_MB_REQUEST = 100
 app.config['MAX_CONTENT_LENGTH'] = MAX_MB_REQUEST * 1024 * 1024
 app.secret_key = "somesecretkey"
+CORS(app)
 
 @app.route('/', methods=['GET'])
 def index():

@@ -1,5 +1,5 @@
 # Python image to use
-FROM python:3.10-slim
+FROM python:3.10.8-slim
  
 
 # Set the working directory to /app

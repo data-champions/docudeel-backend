@@ -1,7 +1,5 @@
 
 import csv
-import pandas as pd
-
 from config import DATA_FP
 
 

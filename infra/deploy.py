@@ -148,8 +148,15 @@ def fail_if_use_old_cli():
     if uses_old:
         raise ValueError("Using version 1x of the CLI")
 
+def check_account():
+    # CHECK ACCOUNT ID
+    cmd = 'aws sts get-caller-identity --query "Account" --output text'
+    acc_id = run_bash(cmd)
+    assert acc_id == '074182031552', f'found {acc_id=}'
+    print('account ok!')
+    
 if __name__ == '__main__':
-
+    check_account()
     size = 'nano'
     fail_if_use_old_cli()
     service_name = 'docudeel-backend'

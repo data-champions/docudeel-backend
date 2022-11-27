@@ -115,27 +115,12 @@ def push_container_img(service_name, img_name_and_tag) -> str:
     return service_name_lightsail
 
 
-def send_slack_message(message: str,
-                       url: str = SLACK_URL) -> None:
-    req = request.Request(url, method="POST")
-    req.add_header('Content-Type', 'application/json')
-    data = {
-        "text": message
-    }
-    data = json.dumps(data)
-    data = data.encode()
-    r = request.urlopen(req, data=data)
-    content = r.read()
-    print(content)
-    return None
-
-
 def deploy_service(config_fp) -> None:
     deploy = f"""{AWS} lightsail create-container-service-deployment --cli-input-json file://{config_fp}"""
     deploy_out = run_bash(deploy)
     if deploy_out is None:
         ci_url = 'https://app.circleci.com/pipelines/github/o-nexus-org/gui?filter=all'
-        send_slack_message(f'lighstail deployment failed check {ci_url=}')
+        print(f'lighstail deployment failed check {ci_url=}')
     print(f'{deploy_out=}')
     print('finished!')
     return None
@@ -176,4 +161,4 @@ if __name__ == '__main__':
     deploy_service(config_fp=config_fp)
     # wait that the server is 100% up
     sleep(4.4 * 60)
-    send_slack_message(f'deployment finished w/ {size=}!')
+    print(f'deployment finished w/ {size=}!')

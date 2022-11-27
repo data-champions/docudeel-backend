@@ -72,3 +72,6 @@ run:
 	python src/app.py
 deploy:
 	python infra/deploy.py
+
+test:
+	echo "hi"

@@ -133,3 +133,5 @@ secrets.toml
 infra/final_config.json
 env.docker
 .flamco.pq
+*.pdf
+*.pptx

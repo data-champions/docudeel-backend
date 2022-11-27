@@ -10,3 +10,6 @@ testing/*
 *.csv
 .vscode/*
 .git/*
+
+*.pdf
+*.pptx

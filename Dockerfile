@@ -1,5 +1,5 @@
 # Python image to use
-FROM python:3.10-slim
+FROM python:3.10.8-slim
  
 
 # Set the working directory to /app
@@ -13,6 +13,6 @@ RUN pip install --no-cache-dir -r requirements.txt
  
 # Copy rest of the working directory contents into the container at /app
 COPY . .
- 
+
 # Run app.py when the container launches
-ENTRYPOINT ["python", "main.py"]
+ENTRYPOINT ["python", "src/app.py"]

@@ -24,6 +24,8 @@ from urllib import request
 
 SLACK_URL = 'https://hooks.slack.com/services/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'  # noqa :E501
 
+AWS = '/usr/local/bin/aws'
+
 
 def run_bash(command: str) -> None:
     try:
@@ -87,22 +89,23 @@ def build_image(img_name_and_tag: str) -> None:
 
 def create_service_if_not_exist(service_name: str,
                                 size: str = 'nano') -> None:
-    list_images = f"aws lightsail get-container-services --service-name {service_name}"
+    list_images = f"{AWS} lightsail get-container-services --service-name {service_name}"
     out = run_bash(list_images)
     if out is not None:
-        cmd = f"aws lightsail update-container-services --service-name {service_name} --power {size} --scale 1"
+        cmd = f"{AWS} lightsail update-container-services --service-name {service_name} --power {size} --scale 1"
         print('service already exist... updating')
     else:
         print('service does not exist... creating')
-        cmd = f"""aws lightsail create-container-service --service-name {service_name} --power {size} --scale 1"""
+        cmd = f"""{AWS} lightsail create-container-service --service-name {service_name} --power {size} --scale 1"""
     out = run_bash(cmd)
     print(out)
     return None
 
 
 def push_container_img(service_name, img_name_and_tag) -> str:
-    push_image = f"""aws lightsail push-container-image --service-name {service_name} --label {service_name} --image {img_name_and_tag}"""
+    push_image = f"""{AWS} lightsail push-container-image --service-name {service_name} --label {service_name} --image {img_name_and_tag}"""
     out = run_bash(push_image)
+    print(f'{out=}')
     service_name_lightsail = [x for x in re.findall('"([^"]*)"', out)
                               if service_name in x]
     if not service_name_lightsail:
@@ -112,35 +115,35 @@ def push_container_img(service_name, img_name_and_tag) -> str:
     return service_name_lightsail
 
 
-def send_slack_message(message: str,
-                       url: str = SLACK_URL) -> None:
-    req = request.Request(url, method="POST")
-    req.add_header('Content-Type', 'application/json')
-    data = {
-        "text": message
-    }
-    data = json.dumps(data)
-    data = data.encode()
-    r = request.urlopen(req, data=data)
-    content = r.read()
-    print(content)
-    return None
-
-
 def deploy_service(config_fp) -> None:
-    deploy = f"""aws lightsail create-container-service-deployment --cli-input-json file://{config_fp}"""
+    deploy = f"""{AWS} lightsail create-container-service-deployment --cli-input-json file://{config_fp}"""
     deploy_out = run_bash(deploy)
     if deploy_out is None:
         ci_url = 'https://app.circleci.com/pipelines/github/o-nexus-org/gui?filter=all'
-        send_slack_message(f'lighstail deployment failed check {ci_url=}')
+        print(f'lighstail deployment failed check {ci_url=}')
     print(f'{deploy_out=}')
     print('finished!')
     return None
 
 
-if __name__ == '__main__':
+def fail_if_use_old_cli():
+    out = run_bash(f'{AWS} --version')
+    print(f'{out=}')
+    uses_old = out.startswith('aws-cli/1.')
+    if uses_old:
+        raise ValueError("Using version 1x of the CLI")
 
+def check_account():
+    # CHECK ACCOUNT ID
+    cmd = 'aws sts get-caller-identity --query "Account" --output text'
+    acc_id = run_bash(cmd)
+    assert acc_id == '074182031552', f'found {acc_id=}'
+    print('account ok!')
+    
+if __name__ == '__main__':
+    check_account()
     size = 'nano'
+    fail_if_use_old_cli()
     service_name = 'docudeel-backend'
     git_hash = get_last_git_hash()
     img_name_and_tag = f"gui:{git_hash}"
@@ -158,4 +161,4 @@ if __name__ == '__main__':
     deploy_service(config_fp=config_fp)
     # wait that the server is 100% up
     sleep(4.4 * 60)
-    send_slack_message(f'deployment finished w/ {size=}!')
+    print(f'deployment finished w/ {size=}!')

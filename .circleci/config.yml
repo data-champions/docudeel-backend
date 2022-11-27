@@ -63,6 +63,10 @@ jobs:
        - aws-cli/setup:
           profile-name: default
        - run: 
+          name: try cli
+          command: |
+           aws sts get-caller-identity --query "Account" --output text
+       - run: 
           name: install lightsail ctl
           command: |
            sudo curl "https://s3.us-west-2.amazonaws.com/lightsailctl/latest/linux-amd64/lightsailctl" -o "/usr/local/bin/lightsailctl"

@@ -60,6 +60,8 @@ build_and_run:
  
 # -- to remove the created image --
 # docker rmi pyflaskfileupload
+setup:
+	pip install -r requirements.txt
 
 setup-docker:
 	pip install -r requirements.txt --no-cache-dir

@@ -74,4 +74,4 @@ deploy:
 	python infra/deploy.py
 
 test:
-	echo "hi"
+	@echo "hi"

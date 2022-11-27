@@ -63,7 +63,7 @@ jobs:
        - aws-cli/setup:
           profile-name: default
        - run: 
-          name: try cli
+          name: try cli - fails with clear error
           command: |
            aws sts get-caller-identity --query "Account" --output text
        - run: 

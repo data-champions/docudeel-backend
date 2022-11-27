@@ -23,7 +23,7 @@ commands:
               make setup
 
       - save_cache: # ** special step to save dependency cache **
-            key: deps1-{{ .Branch }}-{{ checksum "requirements_dev.txt" }}
+            key: deps1-{{ .Branch }}-{{ checksum "requirements.txt" }}
             paths:
               - "venv"
       - run:
@@ -89,8 +89,7 @@ workflows:
     jobs:
       - deploy:
           context: data-champions-prod
-          # TODO
-          # filters:
-          #   branches:
-          #     only:
-          #       - main
+          filters:
+            branches:
+              only:
+                - main

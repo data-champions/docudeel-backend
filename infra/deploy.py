@@ -148,7 +148,7 @@ if __name__ == '__main__':
     check_account()
     size = 'nano'
     fail_if_use_old_cli()
-    service_name = 'docudeel-backend-new'
+    service_name = 'docudeel-backend'
     git_hash = get_last_git_hash()
     img_name_and_tag = f"gui:{git_hash}"
     config_fp = run_bash('grep config.json .gitignore')

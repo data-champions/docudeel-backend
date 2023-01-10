@@ -77,6 +77,12 @@ def make_config(service_name: str,
 def build_image(img_name_and_tag: str) -> None:
     build_img = f"""docker build . -t {img_name_and_tag}"""
     out = run_bash(build_img)
+    if (docker_daemon_off := out is None):
+        print("docker daemon is off... starting it")
+        run_bash("service docker start")
+        out = run_bash(build_img)
+    if out is None:
+        raise RuntimeError("docker build failed")
     # see if it works
     is_built = out.endswith(img_name_and_tag)
     if is_built:

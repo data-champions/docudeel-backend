@@ -77,6 +77,10 @@ def make_config(service_name: str,
 def build_image(img_name_and_tag: str) -> None:
     build_img = f"""docker build . -t {img_name_and_tag}"""
     out = run_bash(build_img)
+    if (docker_daemon_off := out is None):
+        print("docker daemon is off... starting it")
+        run_bash("service docker start")
+
     # see if it works
     is_built = out.endswith(img_name_and_tag)
     if is_built:
@@ -144,7 +148,7 @@ if __name__ == '__main__':
     check_account()
     size = 'nano'
     fail_if_use_old_cli()
-    service_name = 'docudeel-backend'
+    service_name = 'docudeel-backend-new'
     git_hash = get_last_git_hash()
     img_name_and_tag = f"gui:{git_hash}"
     config_fp = run_bash('grep config.json .gitignore')

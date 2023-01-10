@@ -80,7 +80,9 @@ def build_image(img_name_and_tag: str) -> None:
     if (docker_daemon_off := out is None):
         print("docker daemon is off... starting it")
         run_bash("service docker start")
-
+        out = run_bash(build_img)
+    if out is None:
+        raise RuntimeError("docker build failed")
     # see if it works
     is_built = out.endswith(img_name_and_tag)
     if is_built:

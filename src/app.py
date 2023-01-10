@@ -76,9 +76,12 @@ def upload_files():
             data = {'filename': filename, "file": files}
             print(f'{data=}')
             print(type(upload_file))
+            logging.info(f'sending files to {URL_MAKE=}')
             r = requests.post(URL_MAKE, files=files,
                               data=data)
-            logging.info(f'{r=}')
+
+            logging.info(f'{r.status_code=}')
+            logging.info(f'{r.text=}')
             print(f'{r.status_code=}')
             print(f'{r.text=}')
 

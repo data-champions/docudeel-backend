@@ -95,8 +95,12 @@ def upload_files():
             logging.info(f'{r.text=}')
             print(f'{r.status_code=}')
             print(f'{r.text=}')
+            
+            if r.status_code == 413:
+                logging.info('File too large')
+                # TODO send slack message and upload to s3
 
-            resp = get_response(response_type='ok', lang=lang, 
+            resp = get_response(response_type='ok', lang=lang,
                                 original_filename=original_fn)
             return make_response(jsonify(resp), 200)
     except:

@@ -11,6 +11,7 @@ from response import get_response
 import requests
 from datetime import datetime
 from s3 import upload_file_to_s3
+from slack import send_slack_message
 import boto3
 
 
@@ -42,22 +43,6 @@ CORS(app)
 
 URL_MAKE = 'https://hook.eu1.make.com/wqy2x2k2owdng5ldqkr5d8fcvu95itu3'
 
-
-
-def send_slack_message(message: str) -> None:
-    from urllib import request
-    url = "https://hooks.slack.com/services/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"
-    req = request.Request(url, method="POST")
-    req.add_header('Content-Type', 'application/json')
-    data = {
-        "text": message
-    }
-    data = json.dumps(data)
-    data = data.encode()
-    r = request.urlopen(req, data=data)
-    content = r.read()
-    print(content)
-    return None
 
 
 @app.route('/', methods=['GET'])
@@ -136,7 +121,6 @@ def upload_files():
             
             if r.status_code == 413:
                 logging.info('File too large')
-                fp = os.path.join(app.config['UPLOAD_FOLDER'], filename)
                 file.seek(0)
                 # file.save(fp)
                 upload_to_s3(file=file, filename=filename)
@@ -148,7 +132,8 @@ def upload_files():
             resp = get_response(response_type='ok', lang=lang,
                                 original_filename=original_fn)
             return make_response(jsonify(resp), 200)
-    except:
+    except Exception as e:
+        logging.exception("Error")
         lang = "en"
         resp = get_response(response_type='fallback', lang=lang)
         return make_response(jsonify(resp), 500)

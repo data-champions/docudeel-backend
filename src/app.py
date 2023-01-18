@@ -1,6 +1,7 @@
 import logging
 import os.path
 import os
+import json
 from flask_cors import CORS
 from flask import Flask, render_template, request, redirect, flash, jsonify, make_response
 from werkzeug.utils import secure_filename
@@ -9,6 +10,8 @@ from db import debiteur_nummer_exist
 from response import get_response
 import requests
 from datetime import datetime
+from s3 import upload_file_to_s3
+import boto3
 
 
 def make_filename(debiteur_nummer: str,
@@ -39,20 +42,40 @@ CORS(app)
 
 URL_MAKE = 'https://hook.eu1.make.com/wqy2x2k2owdng5ldqkr5d8fcvu95itu3'
 
-path = os.getcwd()
-UPLOAD_FOLDER = os.path.join(path, 'uploads')
 
-# Make directory if uploads is not exists
-if not os.path.isdir(UPLOAD_FOLDER):
-    os.mkdir(UPLOAD_FOLDER)
 
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+def send_slack_message(message: str) -> None:
+    from urllib import request
+    url = "https://hooks.slack.com/services/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"
+    req = request.Request(url, method="POST")
+    req.add_header('Content-Type', 'application/json')
+    data = {
+        "text": message
+    }
+    data = json.dumps(data)
+    data = data.encode()
+    r = request.urlopen(req, data=data)
+    content = r.read()
+    print(content)
+    return None
 
 
 @app.route('/', methods=['GET'])
 def hello_world():
     return "<p>Hello, World!</p>"
 
+S3_BUCKET = "docudeel-temp-storage"
+def upload_to_s3(file, filename):
+    """
+    Docs: http://boto3.readthedocs.io/en/latest/guide/s3.html
+    """
+
+    s3 = boto3.client("s3")
+    s3.upload_fileobj(
+        file,
+        S3_BUCKET,
+        filename,
+    )
 
 @app.route('/', methods=['POST'])
 def upload_files():
@@ -97,6 +120,7 @@ def upload_files():
             logging.info('Selected file is= [%s]', original_fn)
             file_ext = os.path.splitext(original_fn)[1]
             upload_file = file.stream
+            
             files = {'upload_file': upload_file}
             filename = make_filename(debiteur_nummer=clean_user_id,
                                      description=description,
@@ -112,7 +136,14 @@ def upload_files():
             
             if r.status_code == 413:
                 logging.info('File too large')
-                # TODO send slack message and upload to s3
+                fp = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+                file.seek(0)
+                # file.save(fp)
+                upload_to_s3(file=file, filename=filename)
+                mx = f""" 
+                File too large: {filename} uploaded to {S3_BUCKET=}
+                """
+                send_slack_message(mx)
 
             resp = get_response(response_type='ok', lang=lang,
                                 original_filename=original_fn)

@@ -2,7 +2,7 @@ import json
 import logging
 def send_slack_message(message: str) -> None:
     from urllib import request
-    url = "https://hooks.slack.com/services/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"
+    url = "https://hooks.slack.com/services/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"
     req = request.Request(url, method="POST")
     req.add_header('Content-Type', 'application/json')
     data = {

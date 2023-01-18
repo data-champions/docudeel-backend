@@ -33,11 +33,18 @@ logging.basicConfig(format='%(asctime)s:%(levelname)s:%(filename)s:%(funcName)s:
 
 app = Flask(__name__, template_folder='.')
 #  https://flask.palletsprojects.com/en/2.2.x/patterns/fileuploads/#:~:text=Improving%20Uploads&text=The%20code%20above%20will%20limit,will%20raise%20a%20RequestEntityTooLarge%20exception.
-MAX_MB_REQUEST = 100
+MAX_MB_REQUEST = 250
 app.config['MAX_CONTENT_LENGTH'] = MAX_MB_REQUEST * 1024 * 1024
 CORS(app)
 
 URL_MAKE = 'https://hook.eu1.make.com/wqy2x2k2owdng5ldqkr5d8fcvu95itu3'
+
+
+@app.route('/', methods=['GET'])
+def hello_world():
+    return "<p>Hello, World!</p>"
+
+
 @app.route('/', methods=['POST'])
 def upload_files():
     try:
@@ -46,11 +53,15 @@ def upload_files():
         email = request.form.get('email')
         description = request.form.get('description')
         lang = request.form.get('lang', 'en')
-        logging.info(f'{request.form=}')
+        logging.info(f'{user_id=}')
+        logging.info(f'{email=}')
+        logging.info(f'{description=}')
+        logging.info(f'{lang=}')
+        
         if user_id is None or email is None or description is None:
             resp = dict(message="Param user_id, email or description is missing")
             return make_response(jsonify(resp), 400)
-        
+
         clean_user_id = user_id.replace(' ', '').replace('-', '')
         is_client = debiteur_nummer_exist(clean_user_id)
         if not is_client:
@@ -89,6 +100,7 @@ def upload_files():
                                 original_filename=original_fn)
             return make_response(jsonify(resp), 200)
     except:
+        lang = "en"
         resp = get_response(response_type='fallback', lang=lang)
         return make_response(jsonify(resp), 500)
 

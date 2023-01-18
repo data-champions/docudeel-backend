@@ -39,6 +39,15 @@ CORS(app)
 
 URL_MAKE = 'https://hook.eu1.make.com/wqy2x2k2owdng5ldqkr5d8fcvu95itu3'
 
+path = os.getcwd()
+UPLOAD_FOLDER = os.path.join(path, 'uploads')
+
+# Make directory if uploads is not exists
+if not os.path.isdir(UPLOAD_FOLDER):
+    os.mkdir(UPLOAD_FOLDER)
+
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
 
 @app.route('/', methods=['GET'])
 def hello_world():
@@ -68,8 +77,17 @@ def upload_files():
             logging.info(f"{user_id=} {clean_user_id=} not found in records!")
             resp = get_response(response_type='debitnummer_notfound', lang=lang)
             return make_response(jsonify(resp), 400)
+        # logging.info("*" * 50)
+
+        # for file in request.files.getlist("files[]"):
+        #     logging.info(file.filename)
+        #     logging.info(file.stream)
+        # # logging.info(dir(request.files))
+        # logging.info("/" * 50)
+        
+
         file = request.files['file']
-        print(type(file))
+        
         # obtaining the name of the destination file
         original_fn = file.filename
         if original_fn == '':
@@ -90,7 +108,14 @@ def upload_files():
             logging.info(f'sending files to {URL_MAKE=}')
             r = requests.post(URL_MAKE, files=files,
                               data=data)
-
+            try:
+                
+                print(r)
+            except Exception as e:
+                resp = get_response(response_type='ok', lang=lang,
+                                    original_filename="PROTOTYPING")
+                logging.info('PROTOTYPING, SEND RESPONSE')
+                return make_response(jsonify(resp), 200)
             logging.info(f'{r.status_code=}')
             logging.info(f'{r.text=}')
             print(f'{r.status_code=}')

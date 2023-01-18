@@ -87,7 +87,6 @@ def upload_files():
         
 
         file = request.files['file']
-        
         # obtaining the name of the destination file
         original_fn = file.filename
         if original_fn == '':
@@ -108,18 +107,8 @@ def upload_files():
             logging.info(f'sending files to {URL_MAKE=}')
             r = requests.post(URL_MAKE, files=files,
                               data=data)
-            try:
-                
-                print(r)
-            except Exception as e:
-                resp = get_response(response_type='ok', lang=lang,
-                                    original_filename="PROTOTYPING")
-                logging.info('PROTOTYPING, SEND RESPONSE')
-                return make_response(jsonify(resp), 200)
             logging.info(f'{r.status_code=}')
             logging.info(f'{r.text=}')
-            print(f'{r.status_code=}')
-            print(f'{r.text=}')
             
             if r.status_code == 413:
                 logging.info('File too large')

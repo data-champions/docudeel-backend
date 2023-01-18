@@ -1,6 +1,7 @@
 import logging
 import os.path
 import os
+import json
 from flask_cors import CORS
 from flask import Flask, render_template, request, redirect, flash, jsonify, make_response
 from werkzeug.utils import secure_filename
@@ -9,6 +10,8 @@ from db import debiteur_nummer_exist
 from response import get_response
 import requests
 from datetime import datetime
+from s3 import upload_file_to_s3
+import boto3
 
 
 def make_filename(debiteur_nummer: str,
@@ -33,11 +36,47 @@ logging.basicConfig(format='%(asctime)s:%(levelname)s:%(filename)s:%(funcName)s:
 
 app = Flask(__name__, template_folder='.')
 #  https://flask.palletsprojects.com/en/2.2.x/patterns/fileuploads/#:~:text=Improving%20Uploads&text=The%20code%20above%20will%20limit,will%20raise%20a%20RequestEntityTooLarge%20exception.
-MAX_MB_REQUEST = 100
+MAX_MB_REQUEST = 250
 app.config['MAX_CONTENT_LENGTH'] = MAX_MB_REQUEST * 1024 * 1024
 CORS(app)
 
 URL_MAKE = 'https://hook.eu1.make.com/wqy2x2k2owdng5ldqkr5d8fcvu95itu3'
+
+
+
+def send_slack_message(message: str) -> None:
+    from urllib import request
+    url = "https://hooks.slack.com/services/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"
+    req = request.Request(url, method="POST")
+    req.add_header('Content-Type', 'application/json')
+    data = {
+        "text": message
+    }
+    data = json.dumps(data)
+    data = data.encode()
+    r = request.urlopen(req, data=data)
+    content = r.read()
+    print(content)
+    return None
+
+
+@app.route('/', methods=['GET'])
+def hello_world():
+    return "<p>Hello, World!</p>"
+
+S3_BUCKET = "docudeel-temp-storage"
+def upload_to_s3(file, filename):
+    """
+    Docs: http://boto3.readthedocs.io/en/latest/guide/s3.html
+    """
+
+    s3 = boto3.client("s3")
+    s3.upload_fileobj(
+        file,
+        S3_BUCKET,
+        filename,
+    )
+
 @app.route('/', methods=['POST'])
 def upload_files():
     try:
@@ -46,19 +85,31 @@ def upload_files():
         email = request.form.get('email')
         description = request.form.get('description')
         lang = request.form.get('lang', 'en')
-        logging.info(f'{request.form=}')
+        logging.info(f'{user_id=}')
+        logging.info(f'{email=}')
+        logging.info(f'{description=}')
+        logging.info(f'{lang=}')
+        
         if user_id is None or email is None or description is None:
             resp = dict(message="Param user_id, email or description is missing")
             return make_response(jsonify(resp), 400)
-        
+
         clean_user_id = user_id.replace(' ', '').replace('-', '')
         is_client = debiteur_nummer_exist(clean_user_id)
         if not is_client:
             logging.info(f"{user_id=} {clean_user_id=} not found in records!")
             resp = get_response(response_type='debitnummer_notfound', lang=lang)
             return make_response(jsonify(resp), 400)
+        # logging.info("*" * 50)
+
+        # for file in request.files.getlist("files[]"):
+        #     logging.info(file.filename)
+        #     logging.info(file.stream)
+        # # logging.info(dir(request.files))
+        # logging.info("/" * 50)
+        
+
         file = request.files['file']
-        print(type(file))
         # obtaining the name of the destination file
         original_fn = file.filename
         if original_fn == '':
@@ -69,6 +120,7 @@ def upload_files():
             logging.info('Selected file is= [%s]', original_fn)
             file_ext = os.path.splitext(original_fn)[1]
             upload_file = file.stream
+            
             files = {'upload_file': upload_file}
             filename = make_filename(debiteur_nummer=clean_user_id,
                                      description=description,
@@ -79,16 +131,25 @@ def upload_files():
             logging.info(f'sending files to {URL_MAKE=}')
             r = requests.post(URL_MAKE, files=files,
                               data=data)
-
             logging.info(f'{r.status_code=}')
             logging.info(f'{r.text=}')
-            print(f'{r.status_code=}')
-            print(f'{r.text=}')
+            
+            if r.status_code == 413:
+                logging.info('File too large')
+                fp = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+                file.seek(0)
+                # file.save(fp)
+                upload_to_s3(file=file, filename=filename)
+                mx = f""" 
+                File too large: {filename} uploaded to {S3_BUCKET=}
+                """
+                send_slack_message(mx)
 
-            resp = get_response(response_type='ok', lang=lang, 
+            resp = get_response(response_type='ok', lang=lang,
                                 original_filename=original_fn)
             return make_response(jsonify(resp), 200)
     except:
+        lang = "en"
         resp = get_response(response_type='fallback', lang=lang)
         return make_response(jsonify(resp), 500)
 

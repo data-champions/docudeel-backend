@@ -1,7 +1,8 @@
 
+from typing import Optional
 
 def get_response(response_type: str, lang: str,
-                 original_filename: str) -> dict:
+                 original_filename: Optional[str] = None) -> dict:
     """ 
     response_type = debitnummer_notfound, fallback, ok
     """

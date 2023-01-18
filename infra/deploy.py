@@ -52,10 +52,10 @@ def make_config(service_name: str,
                 "5000": "HTTP"
             },
             # TODO
-            # "environment": {
-            #     "AWS_ACCESS_KEY_ID": os.environ['AWS_ACCESS_KEY_ID'],
-            #     "AWS_SECRET_ACCESS_KEY": os.environ['AWS_SECRET_ACCESS_KEY']
-            # }
+            "environment": {
+                "AWS_ACCESS_KEY_ID": os.environ['docudeel_account_id'],
+                "AWS_SECRET_ACCESS_KEY": os.environ['docudeel_key']
+            }
         }
     }
 

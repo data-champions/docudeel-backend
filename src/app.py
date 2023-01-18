@@ -136,7 +136,6 @@ def upload_files():
             
             if r.status_code == 413:
                 logging.info('File too large')
-                fp = os.path.join(app.config['UPLOAD_FOLDER'], filename)
                 file.seek(0)
                 # file.save(fp)
                 upload_to_s3(file=file, filename=filename)
@@ -148,7 +147,8 @@ def upload_files():
             resp = get_response(response_type='ok', lang=lang,
                                 original_filename=original_fn)
             return make_response(jsonify(resp), 200)
-    except:
+    except Exception as e:
+        logging.exception("Error")
         lang = "en"
         resp = get_response(response_type='fallback', lang=lang)
         return make_response(jsonify(resp), 500)

@@ -13,13 +13,15 @@ from datetime import datetime
 from s3 import upload_file_to_s3
 from slack import send_slack_message
 import boto3
+from werkzeug.datastructures import FileStorage
 
 
 def make_filename(debiteur_nummer: str,
                   description: str,
-                  file_ext: str) -> str:
+                  file_ext: str,
+                  i: int) -> str:
     now = str(datetime.now())[:19]
-    fn = f"{debiteur_nummer}_{description}_{now}{file_ext}"
+    fn = f"{debiteur_nummer}_{description}_{i}_{now}{file_ext}"
     fn = fn.replace(' ', '_').replace(':', '_')
     return fn
 
@@ -62,6 +64,39 @@ def upload_to_s3(file, filename):
         filename,
     )
 
+
+def upload_file_to_cloud(file: FileStorage, clean_user_id: str, description: str,
+                         i: int):
+    # obtaining the name of the destination file
+    original_fn = file.filename 
+    logging.info('Selected file is= [%s]', original_fn)
+    file_ext = os.path.splitext(original_fn)[1]
+    upload_file = file.stream
+    files = {'upload_file': upload_file}
+    filename = make_filename(debiteur_nummer=clean_user_id,
+                             description=description,
+                             file_ext=file_ext,
+                             i=i)
+    data = {'filename': filename, "file": files}
+    print(f'{data=}')
+    print(type(upload_file))
+    logging.info(f'sending files to {URL_MAKE=}')
+    r = requests.post(URL_MAKE, files=files,
+                      data=data)
+    logging.info(f'{r.status_code=}')
+    logging.info(f'{r.text=}')
+
+    if r.status_code == 413:
+        logging.info('File too large')
+        file.seek(0)
+        upload_to_s3(file=file, filename=filename)
+        s3_url = f"https://s3.console.aws.amazon.com/s3/object/docudeel-temp-storage?region=eu-central-1&prefix={filename}"
+        mx = f""" 
+        File too large: {filename} uploaded to {s3_url=}
+        """
+        send_slack_message(mx)
+        
+            
 @app.route('/', methods=['POST'])
 def upload_files():
     try:
@@ -74,7 +109,7 @@ def upload_files():
         logging.info(f'{email=}')
         logging.info(f'{description=}')
         logging.info(f'{lang=}')
-        
+
         if user_id is None or email is None or description is None:
             resp = dict(message="Param user_id, email or description is missing")
             return make_response(jsonify(resp), 400)
@@ -85,53 +120,14 @@ def upload_files():
             logging.info(f"{user_id=} {clean_user_id=} not found in records!")
             resp = get_response(response_type='debitnummer_notfound', lang=lang)
             return make_response(jsonify(resp), 400)
-        # logging.info("*" * 50)
+        logging.info("*" * 50)
 
-        # for file in request.files.getlist("files[]"):
-        #     logging.info(file.filename)
-        #     logging.info(file.stream)
-        # # logging.info(dir(request.files))
-        # logging.info("/" * 50)
-        
+        for i, file in enumerate(request.files.getlist("file")):
+            upload_file_to_cloud(file, clean_user_id, description, i)
 
-        file = request.files['file']
-        # obtaining the name of the destination file
-        original_fn = file.filename
-        if original_fn == '':
-            logging.info('Invalid file')
-            resp = dict(message="No file selected for uploading")
-            return make_response(jsonify(resp), 400)
-        else:
-            logging.info('Selected file is= [%s]', original_fn)
-            file_ext = os.path.splitext(original_fn)[1]
-            upload_file = file.stream
-            
-            files = {'upload_file': upload_file}
-            filename = make_filename(debiteur_nummer=clean_user_id,
-                                     description=description,
-                                     file_ext=file_ext)
-            data = {'filename': filename, "file": files}
-            print(f'{data=}')
-            print(type(upload_file))
-            logging.info(f'sending files to {URL_MAKE=}')
-            r = requests.post(URL_MAKE, files=files,
-                              data=data)
-            logging.info(f'{r.status_code=}')
-            logging.info(f'{r.text=}')
-            
-            if r.status_code == 413:
-                logging.info('File too large')
-                file.seek(0)
-                # file.save(fp)
-                upload_to_s3(file=file, filename=filename)
-                mx = f""" 
-                File too large: {filename} uploaded to {S3_BUCKET=}
-                """
-                send_slack_message(mx)
-
-            resp = get_response(response_type='ok', lang=lang,
-                                original_filename=original_fn)
-            return make_response(jsonify(resp), 200)
+        resp = get_response(response_type='ok', lang=lang,
+                            )
+        return make_response(jsonify(resp), 200)
     except Exception as e:
         logging.exception("Error")
         lang = "en"

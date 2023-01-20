@@ -72,10 +72,6 @@ jobs:
           command: |
            sudo curl "https://s3.us-west-2.amazonaws.com/lightsailctl/latest/linux-amd64/lightsailctl" -o "/usr/local/bin/lightsailctl"
            sudo chmod +x /usr/local/bin/lightsailctl 
-      #  - run:
-      #     name: Deps
-      #     command: |
-      #       make setup-run
        - run:
           name: deploy to lightsail
           command: |
@@ -90,7 +86,7 @@ workflows:
     jobs:
       - deploy:
           context: data-champions-prod
-          # filters:
-          #   branches:
-          #     only:
-          #       - main
+          filters:
+            branches:
+              only:
+                - main

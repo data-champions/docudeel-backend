@@ -1,8 +1,12 @@
+"""  
+For config check this:
+https://data-championsgroup.slack.com/apps/A0F7XDUAZ-incoming-webhooks?tab=settings&next_id=0
+"""
 import json
 import logging
 def send_slack_message(message: str) -> None:
     from urllib import request
-    url = "https://hooks.slack.com/services/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"
+    url = "https://hooks.slack.com/services/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"
     req = request.Request(url, method="POST")
     req.add_header('Content-Type', 'application/json')
     data = {
@@ -22,4 +26,4 @@ def send_slack_message(message: str) -> None:
 
 
 if __name__ == '__main__':
-    send_slack_message('test')
+    send_slack_message('test-docudeel')

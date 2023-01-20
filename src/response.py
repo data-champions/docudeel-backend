@@ -1,9 +1,8 @@
 
-from typing import Optional
 
 def get_response(response_type: str, lang: str,
-                 original_filename: Optional[str] = None) -> dict:
-    """ 
+                 ) -> dict:
+    """
     response_type = debitnummer_notfound, fallback, ok
     """
     # this should be in frontend
@@ -18,9 +17,9 @@ def get_response(response_type: str, lang: str,
                          nl="Er ging iets fout, aub nog een keer proberen ❌",
                          es="Algo salió mal, intenta de nuevo ❌")
 
-    ok_resp = dict(en=f'Your file {original_filename} was successfully uploaded! ✔️',
-                   nl=f'Uw bestand {original_filename} is succesvol geüpload! ✔️',
-                   es=f'¡Su archivo {original_filename} se cargó con éxito! ✔️')
+    ok_resp = dict(en=f'Your files was successfully uploaded! ✔️',
+                   nl=f'Uw bestanden is succesvol geüpload! ✔️',
+                   es=f'¡Su archivos se cargó con éxito! ✔️')
     resp = dict(debitnummer_notfound=debitnummer_notfound,
                 fallback=fallback_resp,
                 ok=ok_resp,

@@ -12,6 +12,7 @@ import requests
 from datetime import datetime
 from s3 import upload_file_to_s3
 from slack import send_slack_message
+from clean import clean_debiteur_nummer
 import boto3
 from werkzeug.datastructures import FileStorage
 
@@ -114,7 +115,7 @@ def upload_files():
             resp = dict(message="Param user_id, email or description is missing")
             return make_response(jsonify(resp), 400)
 
-        clean_user_id = user_id.replace(' ', '').replace('-', '')
+        clean_user_id = clean_debiteur_nummer(user_id)
         is_client = debiteur_nummer_exist(clean_user_id)
         if not is_client:
             logging.info(f"{user_id=} {clean_user_id=} not found in records!")

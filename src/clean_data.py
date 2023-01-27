@@ -16,3 +16,4 @@ def clean_input_data():
     df['Code'] = df['Code'].str.replace('-', '').str.replace(' ', '')
     df = df.drop_duplicates()
     df.to_csv(DATA_FP, index=False)
+    

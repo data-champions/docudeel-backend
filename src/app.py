@@ -87,13 +87,23 @@ def upload_file_to_cloud(file: FileStorage, clean_user_id: str, description: str
     logging.info(f'{r.status_code=}')
     logging.info(f'{r.text=}')
 
-    if r.status_code == 413:
+    if r.status_code == 413 or r.status_code != 200:
         logging.info('File too large')
         file.seek(0)
         upload_to_s3(file=file, filename=filename)
         s3_url = f"https://s3.console.aws.amazon.com/s3/object/docudeel-temp-storage?region=eu-central-1&prefix={filename}"
         mx = f""" 
         File too large: {filename} uploaded to {s3_url=}
+        """
+        send_slack_message(mx)
+
+    elif r.status_code != 200:
+        logging.info(r.status_code)
+        file.seek(0)
+        upload_to_s3(file=file, filename=filename)
+        s3_url = f"https://s3.console.aws.amazon.com/s3/object/docudeel-temp-storage?region=eu-central-1&prefix={filename}"
+        mx = f""" 
+        {r.text=} : {r.status_code}  uploaded to {s3_url}
         """
         send_slack_message(mx)
         

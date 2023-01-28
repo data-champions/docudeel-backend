@@ -10,7 +10,7 @@ send_wrong_debit_request:
 send_good_request: 
 	# data.json could be any file  (pdf, png, zip)
 	curl -i -X POST -H "Content-Type: multipart/form-data" \
-		-F "file=@data/data.json" -F "user_id=13004SS" \
+		-F "file=@data/data.json" -F "user_id=13032AI" \
 		-F "email=pizaaa" -F "description=invoice_n2" \
 		-F "lang=nl" \
 		http://127.0.0.1:5000/

@@ -20,6 +20,7 @@ import subprocess
 import sys
 from time import sleep
 from urllib import request
+from src.config import AIRTABLE_BASE_ID, AIRTABLE_TOKEN
 
 
 SLACK_URL = 'https://hooks.slack.com/services/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'  # noqa :E501
@@ -51,10 +52,12 @@ def make_config(service_name: str,
             "ports": {
                 "5000": "HTTP"
             },
-            # TODO
+            # TODO config env vars
             "environment": {
                 "AWS_ACCESS_KEY_ID": os.environ['docudeel_account_id'],
-                "AWS_SECRET_ACCESS_KEY": os.environ['docudeel_key']
+                "AWS_SECRET_ACCESS_KEY": os.environ['docudeel_key'],
+                "AIRTABLE_BASE_ID": AIRTABLE_BASE_ID,
+                "AIRTABLE_TOKEN": AIRTABLE_TOKEN,
             }
         }
     }

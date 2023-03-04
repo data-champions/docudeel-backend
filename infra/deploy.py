@@ -20,7 +20,6 @@ import subprocess
 import sys
 from time import sleep
 from urllib import request
-from src.config import AIRTABLE_BASE_ID, AIRTABLE_TOKEN
 
 
 SLACK_URL = 'https://hooks.slack.com/services/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'  # noqa :E501
@@ -46,6 +45,8 @@ def get_last_git_hash() -> str:
 def make_config(service_name: str,
                 service_name_lightsail: str,
                 config_fp: str) -> None:
+    AIRTABLE_TOKEN = os.environ["AIRTABLE_TOKEN"]
+    AIRTABLE_BASE_ID = os.environ["AIRTABLE_BASE_ID"]
     container_configs = {
         service_name: {
             "image": service_name_lightsail,

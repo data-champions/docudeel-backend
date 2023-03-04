@@ -1,12 +1,8 @@
 import os
 
-try:
-    from ..src.config import AIRTABLE_BASE_ID, AIRTABLE_TOKEN
-except:
-    print('ImportError')
-    import sys
-    from pprint import pprint as pp
-    pp(sys.path)
+
+AIRTABLE_TOKEN = os.environ["AIRTABLE_TOKEN"]
+AIRTABLE_BASE_ID = os.environ["AIRTABLE_BASE_ID"]
 
 environment = {
     "AWS_ACCESS_KEY_ID": os.environ['AWS_ACCESS_KEY_ID'],

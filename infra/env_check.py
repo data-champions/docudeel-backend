@@ -1,7 +1,7 @@
 import os
 
 try:
-    from config import AIRTABLE_BASE_ID, AIRTABLE_TOKEN
+    from ..src.config import AIRTABLE_BASE_ID, AIRTABLE_TOKEN
 except:
     print('ImportError')
     import sys

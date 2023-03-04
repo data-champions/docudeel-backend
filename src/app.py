@@ -6,7 +6,7 @@ from flask_cors import CORS
 from flask import Flask, render_template, request, redirect, flash, jsonify, make_response
 from werkzeug.utils import secure_filename
 
-from db import debiteur_nummer_exist
+from db import debiteur_nummer_exist, insert_record
 from response import get_response
 import requests
 from datetime import datetime
@@ -135,6 +135,9 @@ def upload_files():
 
         for i, file in enumerate(request.files.getlist("file")):
             upload_file_to_cloud(file, clean_user_id, description, i)
+            insert_record(debiteur_nummer=clean_user_id,
+                          comment=description,
+                          dc_client_id='ras_admin')
 
         resp = get_response(response_type='ok', lang=lang,
                             )

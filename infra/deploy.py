@@ -45,16 +45,20 @@ def get_last_git_hash() -> str:
 def make_config(service_name: str,
                 service_name_lightsail: str,
                 config_fp: str) -> None:
+    AIRTABLE_TOKEN = os.environ["AIRTABLE_TOKEN"]
+    AIRTABLE_BASE_ID = os.environ["AIRTABLE_BASE_ID"]
     container_configs = {
         service_name: {
             "image": service_name_lightsail,
             "ports": {
                 "5000": "HTTP"
             },
-            # TODO
+            # TODO config env vars
             "environment": {
                 "AWS_ACCESS_KEY_ID": os.environ['docudeel_account_id'],
-                "AWS_SECRET_ACCESS_KEY": os.environ['docudeel_key']
+                "AWS_SECRET_ACCESS_KEY": os.environ['docudeel_key'],
+                "AIRTABLE_BASE_ID": AIRTABLE_BASE_ID,
+                "AIRTABLE_TOKEN": AIRTABLE_TOKEN,
             }
         }
     }

@@ -1,25 +1,18 @@
 
 
 # v2
-# from aws_cdk import (
-#     App,
-#     Stack,
-#     aws_s3 as s3,
-#     aws_lambda as lambda_,
-#     aws_events as events,
-#     aws_events_targets as targets
-# )
-import json
-import urllib.request
-from typing import List
-# v1
 from aws_cdk import (
-    core,
+    App,
+    Stack,
     aws_s3 as s3,
     aws_lambda as lambda_,
     aws_events as events,
     aws_events_targets as targets
 )
+import json
+import urllib.request
+from typing import List
+
 from src.config import AIRTABLE_TOKEN, AIRTABLE_BASE_ID
 
 

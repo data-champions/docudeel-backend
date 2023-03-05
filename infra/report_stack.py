@@ -13,7 +13,7 @@ import json
 import urllib.request
 from typing import List
 
-from src.config import AIRTABLE_TOKEN, AIRTABLE_BASE_ID
+from ..src.config import AIRTABLE_TOKEN, AIRTABLE_BASE_ID
 
 
 def _get_layer_arn(lib: str = 'pandas') -> str:

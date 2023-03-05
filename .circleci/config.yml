@@ -19,7 +19,7 @@ commands:
       #         curl -sL https://deb.nodesource.com/setup_16.x | sudo bash - && sudo apt -y install nodejs
       #         npm --version
       #       name: install nvm/npm/node
-      - run: # install and activate virtual environment with pip
+      - run:
             command: |
               npm install
             name: install cdk modules

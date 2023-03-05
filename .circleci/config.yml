@@ -54,8 +54,8 @@ jobs:
           name: Test app code
       - run:
           command: |
-          . venv/bin/activate
-          npx cdk synth
+           . venv/bin/activate
+           npx cdk synth
           name: Test cdk
 
   

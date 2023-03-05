@@ -1,0 +1,23 @@
+{
+  "name": "docudeel-backend",
+  "version": "0.0.1",
+  "description": "Scaffolding for a backend processing a file + some params.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/david-fortini/backend-docudeel.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/david-fortini/backend-docudeel/issues"
+  },
+  "homepage": "https://github.com/david-fortini/backend-docudeel#readme",
+  "dependencies": {
+    "cdk": "^2.67.0"
+  }
+}

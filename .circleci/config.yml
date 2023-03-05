@@ -8,12 +8,21 @@ executors:
   python:
     working_directory: ~/project
     docker:
-      - image: cimg/python:3.8.13
+      - image: cimg/python:3.8.13-node
 
 commands:
   setup-environment:
     steps:
       - checkout
+      # - run: # install and activate virtual environment with pip
+      #       command: |
+      #         curl -sL https://deb.nodesource.com/setup_16.x | sudo bash - && sudo apt -y install nodejs
+      #         npm --version
+      #       name: install nvm/npm/node
+      - run:
+            command: |
+              npm install
+            name: install cdk modules
       - restore_cache: # **restores saved dependency cache if the Branch key template or requirements.txt files have not changed since the previous run**
             key: deps1-{{ .Branch }}-{{ checksum "requirements.txt" }}
       - run: # install and activate virtual environment with pip
@@ -21,7 +30,6 @@ commands:
               python3 -m venv venv
               . venv/bin/activate
               make setup
-
       - save_cache: # ** special step to save dependency cache **
             key: deps1-{{ .Branch }}-{{ checksum "requirements.txt" }}
             paths:
@@ -43,12 +51,20 @@ jobs:
           command: |
            . venv/bin/activate
            make test
-          name: Test
+          name: Test app code
+      - run:
+          command: |
+           . venv/bin/activate
+           npx cdk synth
+          name: Test cdk
+
+  
   deploy:
     docker:
-      - image: cimg/python:3.8.13
+      - image: cimg/python:3.8.13-node
     steps:
        - checkout
+       - setup-environment
        - setup_remote_docker:
              docker_layer_caching: true
        - run:
@@ -77,6 +93,19 @@ jobs:
           command: |
             make deploy
 
+  deploy-report:
+    docker:
+      - image: cimg/python:3.8.13-node
+    steps:
+       - checkout
+       - setup-environment
+       - run:
+          command: |
+           . venv/bin/activate
+           make deploy_report
+          name: Test cdk
+
+
 workflows:
   test:
     jobs:
@@ -85,6 +114,14 @@ workflows:
   deploy-to-lightsail:
     jobs:
       - deploy:
+          context: data-champions-prod
+          filters:
+            branches:
+              only:
+                - main
+  deploy-lambda:
+    jobs:
+      - deploy-report:
           context: data-champions-prod
           filters:
             branches:

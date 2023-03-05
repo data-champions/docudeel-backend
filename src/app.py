@@ -8,6 +8,7 @@ from werkzeug.utils import secure_filename
 
 from db import debiteur_nummer_exist, insert_record
 from response import get_response
+from conf_email import send_confirmation_email
 import requests
 from datetime import datetime
 from s3 import upload_file_to_s3
@@ -34,6 +35,8 @@ def make_filename(debiteur_nummer: str,
 
 
 
+    
+  
 logging.basicConfig(format='%(asctime)s:%(levelname)s:%(filename)s:%(funcName)s:%(message)s',
                     datefmt='%Y-%m-%d %H:%M:%S',
                     level=logging.INFO)
@@ -138,6 +141,14 @@ def upload_files():
             insert_record(customer_id=clean_user_id,
                           comment=description,
                           dc_client_id='ras_admin')
+        if email:
+            try:
+                send_confirmation_email(receiver=email,
+                                        description=description,
+                                        lang=lang)
+            except Exception as e:
+                print(e)
+                pass
 
         resp = get_response(response_type='ok', lang=lang,
                             )

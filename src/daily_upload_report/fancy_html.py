@@ -107,13 +107,18 @@ def build_table(df, color, font_size = 'medium', font_family = 'Century Gothic',
     return body
 
 
-def get_greeting(empty: bool = False) -> str:
+def get_greeting(empty: bool = False, receiver: str = '') -> str:
     if empty:
-        n_files = 'geen'
+        n_files = 'Geen'
     else:
-        n_files = 'de volgende'
-    bericht = f'<h2>Beste, {n_files} bestanden waren geüpload in de afgelopen 24 uur.</h2>'
+        n_files = 'De volgende'
+    bericht = f"""<h2>
+    Beste {receiver},
+    <p> {n_files} bestanden waren geüpload in de afgelopen 24 uur.</p>
+    </h2>
+    """
     return bericht
+  
 
 if __name__ == '__main__':
     data = {'Tijd geüpload': [1,2,3,4],

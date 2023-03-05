@@ -8,9 +8,6 @@ pytest==6.1.2
 # report
 airtable==0.4.8
 pandas==1.4.1
-# aws-cdk-lib==2.12.0
-# aws-cdk.core==1.144.0
-# aws-cdk.aws-lambda==1.144.0
-# aws-cdk.aws-events==1.144.0
-# aws-cdk.aws-events-targets==1.144.0
-# openpyxl==3.0.9
+
+# cdk 
+aws-cdk-lib==2.67.0

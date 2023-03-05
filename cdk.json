@@ -1,0 +1,3 @@
+{
+    "app": "python infra/main_cdk.py"
+}

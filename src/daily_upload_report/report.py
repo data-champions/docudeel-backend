@@ -7,85 +7,56 @@ Send a report of airtable uploads
 import datetime as dt
 import pandas as pd
 
-try:
-    from fancy_html import build_table, get_greeting
-    from airtable import Airtable
-    import os
-    AIRTABLE_TOKEN = os.environ["AIRTABLE_TOKEN"]
-    AIRTABLE_BASE_ID = os.environ["AIRTABLE_BASE_ID"]
+from email import send_plain_email
+# for local dev go to src/daily_upload_report
+from fancy_html import build_table, get_greeting
+from airtable import Airtable
+import os
+AIRTABLE_TOKEN = os.environ["AIRTABLE_TOKEN"]
+AIRTABLE_BASE_ID = os.environ["AIRTABLE_BASE_ID"]
 
-except ImportError:
-    # local dev
-    from lambdas.daily_upload_report.fancy_html import build_table, get_greeting
-    from cdk_infra.config import AIRTABLE_TOKEN, AIRTABLE_BASE_ID
-    from lambdas.daily_upload_report.airtable import Airtable
 
 
 AT = Airtable(AIRTABLE_BASE_ID, AIRTABLE_TOKEN)
 
-def _extract_name(x) -> str:
-    if isinstance(x, list):
-        return x[0]
-    return 'onbekend'
+def _get_date_str(n_days_ago: int) -> str:
+    date = (dt.datetime.today() - dt.timedelta(days=n_days_ago))
+    return date.strftime('%Y-%m-%d')
 
 
-def get_data() -> pd.DataFrame:
+def _keep_days(df: pd.DataFrame, n_days_ago: int = 1) -> pd.DataFrame:
+    dates_report = [_get_date_str(x) for x in range(0, n_days_ago+1)]
+    needs_report = df['date_upload'].str.split(' ', expand=True).isin(dates_report)
+    out = df.loc[needs_report, :]
+    return out
+    
+# ex = pd.DataFrame(dict(date_upload=['2023-03-05 16:22']))    
+# out['date_upload'].str.split(' ',expand=True).isin(today_or_yesterday)
+
+def get_data(n_days: int) -> pd.DataFrame:
     # https://support.airtable.com/hc/en-us/articles/4405741487383-Understanding-Airtable-IDs
-    res = AT.get('Ras-Admin -> Uploads')
+    res = AT.get('uploads_new')
     df = pd.DataFrame(res['records'])
-    out = pd.DataFrame.from_records(df['fields'])
-    deb_name = out['Name (from DEBITEUREN_NUMMER)'].map(_extract_name)
-    dt_created = pd.to_datetime(out['DateTimeCreated'], utc=True).dt.tz_convert('Europe/Amsterdam')
-    description = out['Description']
-    df = pd.DataFrame(dict(deb_name=deb_name,
-                           dt_created=dt_created,
-                           description=description))
-    return df
+    out = pd.DataFrame.from_records(df['fields']).dropna(how='all')
+    out = _keep_days(df=out, n_days_ago=n_days)
+    return out
 
 
-def run_report(n_days:int=1):
-    df = get_data()
+def run_report(n_days: int=1):
+    df = get_data(n_days=n_days)
     # select last 24 hours * n_days
-    n_days = 1
-    dt_yesterday = dt.datetime.now()-dt.timedelta(hours=24*n_days)
-    out = df.set_index('dt_created').sort_index()[dt_yesterday:].reset_index()
-    # formatting
-    out['dt_created'] = out['dt_created'].astype(str).str[:19]
-    out = out.rename(columns={'dt_created': 'Tijd geüpload',
-                              'deb_name': 'Bedrijfsnaam',
-                              'description': 'Omschrijving'})
-    bericht = get_greeting(empty=out.empty)
-    styled_html = bericht + build_table(out, color='blue_light')
-    today_str = dt.datetime.today().strftime("%-d/%-m/%Y")
-    data =      {'Date': today_str,
-                 'HTML': styled_html,
-                 'EMAIL': 'info@rasadministrative.com',
-                 #TODO extract business from email or so
-                 'Business': 'Ras-administrative'
-                 }
-    AT.create('Ras-Admin -> Reports', data)
-    print('Finished inserting data')
+    no_new_records = df.empty
+    if no_new_records:
+        bericht = get_greeting(empty=True)
+    else:
+        bericht = get_greeting(empty=False)
+        out = out.rename(columns={'date_upload': 'Tijd geüpload',
+                                  'customer_id': 'Bedrijfsnaam',
+                                  'description': 'Omschrijving'})
+        bericht += build_table(out, color='blue_light')
+        today_str = dt.datetime.today().strftime("%Y-%m-%d")
+    send_plain_email(bericht, subject=f'Docudeel Uploads {today_str}')
 
 
 if __name__ == '__main__':
-    df = get_data()
-    # select last 24 hours
-    dt_yesterday = dt.datetime.now()-dt.timedelta(hours=16*30)
-    out = df.set_index('dt_created').sort_index()[dt_yesterday:].reset_index()
-    # formatting
-    out['dt_created'] = out['dt_created'].astype(str).str[:19]
-    out = out.rename(columns={'dt_created': 'Tijd geüpload',
-                              'deb_name': 'Bedrijfsnaam',
-                              'description': 'Omschrijving'})
-    bericht = get_greeting(empty=out.empty)
-    styled_html = bericht + build_table(out, color='blue_light')
-    with open('styled2.html', 'w') as f:
-        f.write(styled_html)
-    # put to airtable
-    data =      {'customer_id': '13004SS',
-                 'dc_client_id': 'ras_admin',
-                 'date_upload': 'today',
-                 'n_doc': 1,
-                 }
-
-    AT.create('uploads_new', data)
+    run_report(n_days=1)

@@ -31,7 +31,7 @@ def insert_record(customer_id: str,
                   comment: str,
                   dc_client_id: str ='ras_admin') -> bool:
     from datetime import datetime
-    today = datetime.today().strftime('%Y-%m-%d')
+    today = datetime.today().strftime('%Y-%m-%d %H:%M')
     data =      {'customer_id': customer_id,
                  'dc_client_id': dc_client_id,
                  'date_upload': today,

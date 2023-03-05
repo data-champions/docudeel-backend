@@ -37,6 +37,8 @@ def get_data(n_days: int) -> pd.DataFrame:
     # https://support.airtable.com/hc/en-us/articles/4405741487383-Understanding-Airtable-IDs
     res = AT.get('uploads_new')
     df = pd.DataFrame(res['records'])
+    if df.empty:
+        return df
     df = pd.DataFrame.from_records(df['fields']).dropna(how='all')
     out = _keep_days(df=df, n_days_ago=n_days)
     return out
@@ -47,6 +49,7 @@ def run_report(n_days: int=1, receivers: List[str] = ['fortini.david@gmail.com']
     # select last 24 hours * n_days
     no_new_records = df.empty
     receiver = 'RAS administrative'
+    today_str = dt.datetime.today().strftime("%Y-%m-%d")
     if no_new_records:
         bericht = get_greeting(empty=True, receiver=receiver)
     else:
@@ -56,7 +59,7 @@ def run_report(n_days: int=1, receivers: List[str] = ['fortini.david@gmail.com']
                                   'description': 'Omschrijving'})
         df = df.drop(columns=['dc_client_id'])
         bericht += build_table(df, color='blue_light')
-        today_str = dt.datetime.today().strftime("%Y-%m-%d")
+        
     try:
         send_plain_email(bericht, subject=f'Docudeel Uploads {today_str}',
                          )
@@ -69,5 +72,5 @@ def run_report(n_days: int=1, receivers: List[str] = ['fortini.david@gmail.com']
 
 if __name__ == '__main__':
     html = run_report(n_days=1)
-    with open('styled.html', 'w') as f:
+    with open('report.html', 'w') as f:
         f.write(html)

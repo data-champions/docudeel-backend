@@ -118,6 +118,7 @@ def get_greeting(empty: bool = False, receiver: str = '') -> str:
     </h2>
     """
     return bericht
+  
 
 if __name__ == '__main__':
     data = {'Tijd geüpload': [1,2,3,4],

@@ -111,14 +111,14 @@ workflows:
     jobs:
       - unit_test_job:
           context: data-champions-prod
-  deploy-to-lightsail:
-    jobs:
-      - deploy:
-          context: data-champions-prod
-          filters:
-            branches:
-              only:
-                - main
+  # deploy-to-lightsail:
+  #   jobs:
+  #     - deploy:
+  #         context: data-champions-prod
+  #         filters:
+  #           branches:
+  #             only:
+  #               - main
   deploy-lambda:
     jobs:
       - deploy-report:

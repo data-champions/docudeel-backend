@@ -43,7 +43,12 @@ jobs:
           command: |
            . venv/bin/activate
            make test
-          name: Test
+          name: Test app code
+      - run:
+          command: cdk synth
+          name: Test cdk
+
+  
   deploy:
     docker:
       - image: cimg/python:3.8.13

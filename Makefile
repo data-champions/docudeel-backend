@@ -75,3 +75,11 @@ deploy:
 
 test:
 	python infra/env_check.py
+
+
+# deploy
+synth:
+	npx cdk synth 
+
+deploy_report:
+	npx cdk deploy --require-approval never

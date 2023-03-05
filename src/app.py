@@ -135,7 +135,7 @@ def upload_files():
 
         for i, file in enumerate(request.files.getlist("file")):
             upload_file_to_cloud(file, clean_user_id, description, i)
-            insert_record(debiteur_nummer=clean_user_id,
+            insert_record(customer_id=clean_user_id,
                           comment=description,
                           dc_client_id='ras_admin')
 

@@ -11,8 +11,3 @@ pandas==1.4.1
 
 # cdk 
 aws-cdk-lib==2.67.0
-# aws-cdk.core==1.144.0
-# aws-cdk.aws-lambda==1.144.0
-# aws-cdk.aws-events==1.144.0
-# aws-cdk.aws-events-targets==1.144.0
-# openpyxl==3.0.9

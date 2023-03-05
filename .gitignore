@@ -135,3 +135,5 @@ env.docker
 .flamco.pq
 *.pdf
 *.pptx
+
+node_modules/

@@ -4,12 +4,16 @@
 from aws_cdk import (
     App,
     Stack,
-    Construct,
     aws_s3 as s3,
     aws_lambda as lambda_,
     aws_events as events,
     aws_events_targets as targets
 )
+
+from constructs import (
+    Construct,
+)
+
 import json
 import urllib.request
 from typing import List
@@ -68,7 +72,7 @@ class ReportStack(Stack):
         fn_name = 'daily_upload_report'
         scheduler_fn = lambda_.Function(self, id=fn_name,
         function_name=fn_name,
-        code=lambda_.Code.from_asset(f'lambdas/{fn_name}'),
+        code=lambda_.Code.from_asset(f'src/{fn_name}'),
         runtime=lambda_.Runtime.PYTHON_3_9,
         handler=f"lambda_function.lambda_handler",
         environment=env,

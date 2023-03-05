@@ -8,17 +8,17 @@ executors:
   python:
     working_directory: ~/project
     docker:
-      - image: cimg/python:3.8.13
+      - image: cimg/python:3.8.13-node
 
 commands:
   setup-environment:
     steps:
       - checkout
-      - run: # install and activate virtual environment with pip
-            command: |
-              curl -sL https://deb.nodesource.com/setup_16.x | sudo bash - && sudo apt -y install nodejs
-              npm --version
-            name: install nvm/npm/node
+      # - run: # install and activate virtual environment with pip
+      #       command: |
+      #         curl -sL https://deb.nodesource.com/setup_16.x | sudo bash - && sudo apt -y install nodejs
+      #         npm --version
+      #       name: install nvm/npm/node
       - run: # install and activate virtual environment with pip
             command: |
               npm install
@@ -61,7 +61,7 @@ jobs:
   
   deploy:
     docker:
-      - image: cimg/python:3.8.13
+      - image: cimg/python:3.8.13-node
     steps:
        - checkout
        - setup-environment
@@ -95,7 +95,7 @@ jobs:
 
   deploy-report:
     docker:
-      - image: cimg/python:3.8.13
+      - image: cimg/python:3.8.13-node
     steps:
        - checkout
        - setup-environment
@@ -123,7 +123,7 @@ workflows:
     jobs:
       - deploy-report:
           context: data-champions-prod
-          # filters:
-          #   branches:
-          #     only:
-          #       - main
+          filters:
+            branches:
+              only:
+                - main

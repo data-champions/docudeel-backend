@@ -92,7 +92,19 @@ jobs:
           name: deploy to lightsail
           command: |
             make deploy
-            make deploy_report
+
+  deploy-report:
+    docker:
+      - image: cimg/python:3.8.13
+    steps:
+       - checkout
+       - setup-environment
+       - run:
+          command: |
+           . venv/bin/activate
+           make deploy_report
+          name: Test cdk
+
 
 workflows:
   test:
@@ -103,7 +115,15 @@ workflows:
     jobs:
       - deploy:
           context: data-champions-prod
-          # filters:
-          #   branches:
-          #     only:
-          #       - main
+          filters:
+            branches:
+              only:
+                - main
+  deploy-lambda:
+    jobs:
+      - deploy-report:
+          context: data-champions-prod
+          filters:
+            branches:
+              only:
+                - main

@@ -4,6 +4,7 @@
 from aws_cdk import (
     App,
     Stack,
+    Construct,
     aws_s3 as s3,
     aws_lambda as lambda_,
     aws_events as events,
@@ -13,7 +14,9 @@ import json
 import urllib.request
 from typing import List
 
-from ..src.config import AIRTABLE_TOKEN, AIRTABLE_BASE_ID
+import os 
+AIRTABLE_TOKEN = os.environ["AIRTABLE_TOKEN"]
+AIRTABLE_BASE_ID = os.environ["AIRTABLE_BASE_ID"]
 
 
 def _get_layer_arn(lib: str = 'pandas') -> str:
@@ -22,7 +25,7 @@ def _get_layer_arn(lib: str = 'pandas') -> str:
     return json.loads(contents)[0]['arn']
 
 
-def create_klayer(stack: core.Stack,
+def create_klayer(stack: Stack,
                   lib: str) -> lambda_.LayerVersion:
     layer_arn = _get_layer_arn(lib=lib)
     layer = lambda_.LayerVersion.from_layer_version_arn(
@@ -32,7 +35,7 @@ def create_klayer(stack: core.Stack,
     return layer
 
 
-def create_daily_rule(stack: core.Stack,
+def create_daily_rule(stack: Stack,
                       rule_targets: List[lambda_.Function]) -> None:
     rule_targets = [targets.LambdaFunction(x) for x in rule_targets]
     # time is right before the current notification email!
@@ -51,9 +54,9 @@ def create_daily_rule(stack: core.Stack,
     )
 
 
-class ReportStack(core.Stack):
+class ReportStack(Stack):
     # scope is type construct
-    def __init__(self, scope: core.Construct, id: str, **kwargs):
+    def __init__(self, scope: Construct, id: str, **kwargs):
         super().__init__(scope, id, **kwargs)
 
         layer_pandas = create_klayer(stack=self, lib='pandas')

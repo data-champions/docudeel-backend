@@ -15,6 +15,12 @@ send_good_request:
 		-F "lang=nl" \
 		http://127.0.0.1:5000/
 
+
+send_good_request_list: 
+	# data.json could be any file  (pdf, png, zip)
+	curl -i -X GET \
+		http://172.17.0.2:5000/list_users
+
 send_bad_request: 
 	# data.json could be any file  (pdf, png, zip)
 	curl -i -X POST -H "Content-Type: multipart/form-data" \

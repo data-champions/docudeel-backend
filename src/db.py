@@ -6,15 +6,16 @@ from config import DATA_FP
 import logging
 from airtable import Airtable
 
-try:
-    AIRTABLE_TOKEN = os.environ["AIRTABLE_TOKEN"]
-    AIRTABLE_BASE_ID = os.environ["AIRTABLE_BASE_ID"]
 
-except ImportError:
-    # local dev
-    from config import AIRTABLE_TOKEN, AIRTABLE_BASE_ID
+AIRTABLE_TOKEN = os.environ["AIRTABLE_TOKEN"]
+AIRTABLE_BASE_ID = os.environ["AIRTABLE_BASE_ID"]
 
 
+def list_debiteur_numbers() -> list:
+    """Returns list of debiteur numbers"""
+    with open(DATA_FP) as csvfile:
+        spamreader = csv.reader(csvfile)
+        return [row[0] for row in spamreader]
 
 
 def debiteur_nummer_exist(debiteur_id: str) -> bool:

@@ -6,7 +6,7 @@ from flask_cors import CORS
 from flask import Flask, render_template, request, redirect, flash, jsonify, make_response
 from werkzeug.utils import secure_filename
 
-from db import debiteur_nummer_exist, insert_record
+from db import debiteur_nummer_exist, insert_record, list_debiteur_numbers
 from response import get_response
 from conf_email import send_confirmation_email
 import requests
@@ -110,7 +110,13 @@ def upload_file_to_cloud(file: FileStorage, clean_user_id: str, description: str
         """
         send_slack_message(mx)
         
-            
+
+@app.route('/list_users', methods=['GET'])
+def list_users():
+    users = list_debiteur_numbers()
+    return make_response(jsonify(users), 200)
+
+
 @app.route('/', methods=['POST'])
 def upload_files():
     try:

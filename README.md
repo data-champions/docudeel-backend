@@ -11,3 +11,7 @@ Example requests
 make send_good_request
 make send_bad_request
 ```
+
+docker build . -tag docudeel
+docker run --env-file ./env.docker -it docudeel 
+

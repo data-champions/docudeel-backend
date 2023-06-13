@@ -99,6 +99,12 @@ jobs:
     steps:
        - checkout
        - setup-environment
+       - aws-cli/setup:
+          profile-name: default
+       - run: 
+          name: try cli - fails with clear error
+          command: |
+           aws sts get-caller-identity --query "Account" --output text
        - run:
           command: |
            . venv/bin/activate
@@ -116,14 +122,14 @@ workflows:
       - deploy:
           context: data-champions-prod
           filters:
-            branches:
-              only:
-                - main
+            # branches:
+            #   only:
+            #     - main
   deploy-lambda:
     jobs:
       - deploy-report:
           context: data-champions-prod
           filters:
-            branches:
-              only:
-                - main
+            # branches:
+            #   only:
+            #     - main

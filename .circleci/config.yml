@@ -121,15 +121,15 @@ workflows:
     jobs:
       - deploy:
           context: data-champions-prod
-          # filters:
-            # branches:
-            #   only:
-            #     - main
+          filters:
+            branches:
+              only:
+                - main
   deploy-lambda:
     jobs:
       - deploy-report:
           context: data-champions-prod
-          # filters:
-            # branches:
-            #   only:
-            #     - main
+          filters:
+            branches:
+              only:
+                - main

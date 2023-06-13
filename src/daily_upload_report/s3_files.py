@@ -17,6 +17,7 @@ import pandas as pd
 from collections import Counter
 bucket = 'docudeel-temp-storage'
 
+# test is_recent_file
 # item = {'Key': '13004SS_test_0_2023-06-13_13_07_27.csv', 'LastModified': datetime(2023, 6, 13, 13, 7, 29, tzinfo=timezone.utc), 'ETag': '"0226e9549ca78b631b19937b3f7ca4db"', 'Size': 243, 'StorageClass': 'STANDARD'}
 
 # n_days_last_modified = (datetime.now(timezone.utc) - item['LastModified'] ).days
@@ -27,7 +28,6 @@ def is_recent_file(item: dict, n_days_ago: Optional[int] = None) -> bool:
     if n_days_ago is None:
         return True
     n_days_last_modified = (datetime.now(timezone.utc) - item['LastModified'] ).days
-    print(n_days_last_modified)
     is_recent = abs(n_days_last_modified) < n_days_ago
     return is_recent
 
@@ -54,9 +54,7 @@ def get_s3_files(bucket_name: str,
         if len(all_items) > 0:
             # apply transformations here!
             for item in all_items:
-                print(item)
                 is_recent = is_recent_file(item=item, n_days_ago=n_days_ago)
-                print(is_recent)
                 if is_recent:
                     all_file_names.append(item['Key'])
         if continuation_token is None:

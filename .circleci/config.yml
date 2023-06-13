@@ -99,6 +99,12 @@ jobs:
     steps:
        - checkout
        - setup-environment
+       - aws-cli/setup:
+          profile-name: default
+       - run: 
+          name: try cli - fails with clear error
+          command: |
+           aws sts get-caller-identity --query "Account" --output text
        - run:
           command: |
            . venv/bin/activate

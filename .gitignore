@@ -137,3 +137,4 @@ env.docker
 *.pptx
 
 node_modules/
+data/clean_relaties.xlsx

@@ -7,7 +7,8 @@ from aws_cdk import (
     aws_s3 as s3,
     aws_lambda as lambda_,
     aws_events as events,
-    aws_events_targets as targets
+    aws_events_targets as targets,
+    aws_iam as iam,
 )
 
 from constructs import (
@@ -79,5 +80,12 @@ class ReportStack(Stack):
         memory_size=576,
         layers=[layer_pandas, layer_req],
         retry_attempts=0
+        )
+        scheduler_fn.add_to_role_policy(
+            iam.PolicyStatement(
+                effect=iam.Effect.ALLOW,
+                resources=["*"],
+                actions=['s3:*'],
+            )
         )
         schedule = create_daily_rule(self, rule_targets=[scheduler_fn])

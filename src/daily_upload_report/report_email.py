@@ -2,7 +2,26 @@ import boto3
 
 from typing import List
 
+import requests
 
+def send_email_make(
+        message: str,
+        receiver: str,
+        backup_receiver: str,
+        subject: str = 'Docudeel Rapportage',
+        ) -> None:
+    
+    URL_EMAIL_RAPPO = 'https://hook.eu1.make.com/tp8sqgepc2ibi7kayjkmcyf2ful85vtn'
+    data = {'text': message, 
+            'recipient': receiver,
+            'backup_recipient': backup_receiver,
+            'subject': subject}
+    print(f'{data=}')
+    r = requests.post(URL_EMAIL_RAPPO,
+                      data=data)
+    # print(r.json())
+
+    
 def send_plain_email(
         message: str,
         subject: str,

@@ -121,7 +121,7 @@ workflows:
     jobs:
       - deploy:
           context: data-champions-prod
-          filters:
+          # filters:
             # branches:
             #   only:
             #     - main
@@ -129,7 +129,7 @@ workflows:
     jobs:
       - deploy-report:
           context: data-champions-prod
-          filters:
+          # filters:
             # branches:
             #   only:
             #     - main

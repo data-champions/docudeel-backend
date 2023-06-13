@@ -103,12 +103,15 @@ def upload_file_to_cloud(file: FileStorage, clean_user_id: str, description: str
     elif r.status_code != 200:
         logging.info(r.status_code)
         file.seek(0)
-        upload_to_s3(file=file, filename=filename)
+        
         s3_url = f"https://s3.console.aws.amazon.com/s3/object/docudeel-temp-storage?region=eu-central-1&prefix={filename}"
         mx = f""" 
         {r.text=} : {r.status_code}  uploaded to {s3_url}
         """
         send_slack_message(mx)
+    else:
+        file.seek(0)
+        upload_to_s3(file=file, filename=filename)
         
 
 @app.route('/list_users', methods=['GET'])

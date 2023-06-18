@@ -13,8 +13,8 @@ def send_email_make(
     
     URL_EMAIL_RAPPO = 'https://hook.eu1.make.com/tp8sqgepc2ibi7kayjkmcyf2ful85vtn'
     data = {'text': message, 
-            'recipient': receiver,
-            'backup_recipient': backup_receiver,
+            'receiver': receiver,
+            'backup_receiver': backup_receiver,
             'subject': subject}
     print(f'{data=}')
     r = requests.post(URL_EMAIL_RAPPO,

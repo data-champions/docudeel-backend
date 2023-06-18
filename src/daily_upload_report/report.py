@@ -37,4 +37,4 @@ if __name__ == '__main__':
     html = run_report(
         receiver='fortini.david@gmail.com',
         backup_receiver='infodatachampions@gmail.com',
-        n_days=22)
+        n_days=6)

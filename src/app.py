@@ -24,7 +24,8 @@ def make_filename(debiteur_nummer: str,
                   i: int) -> str:
     now = str(datetime.now())[:19]
     fn = f"{debiteur_nummer}_{description}_{i}_{now}{file_ext}"
-    fn = fn.replace(' ', '_').replace(':', '_')
+    # avoids that special characters are used in the filename
+    fn = fn.replace(' ', '_').replace(':', '_').replace('/', '_')
     return fn
 
 ## TODO unit test
@@ -32,7 +33,7 @@ def make_filename(debiteur_nummer: str,
 # no space in filename
 # no . in filename
 # no .. before extension
-
+# no / in filename
 
 
     
@@ -71,6 +72,7 @@ def upload_to_s3(file, filename):
 
 def upload_file_to_cloud(file: FileStorage, clean_user_id: str, description: str,
                          i: int):
+    """Upload to make. If too large/fails, upload to s3"""
     # obtaining the name of the destination file
     original_fn = file.filename 
     logging.info('Selected file is= [%s]', original_fn)

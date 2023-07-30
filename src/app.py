@@ -154,7 +154,7 @@ def upload_files():
         is_client = debiteur_nummer_exist(clean_user_id)
         if not is_client:
             logging.info(f"{user_id=} {clean_user_id=} not found in records!")
-            resp = get_response(response_type='debitnummer_notfound', lang=lang)
+            resp = get_response(response_type='debitnummer_notfound', lang=lang, email=email)
             return make_response(jsonify(resp), 400)
         logging.info("*" * 50)
         
@@ -191,7 +191,7 @@ def upload_files():
                 # normal file upload should fail
                 # upload_file_to_cloud(file, clean_user_id, description, i)
                 FAIL = True
-                fail_resp = get_response(response_type='file_too_large', lang=lang)
+                fail_resp = get_response(response_type='file_too_large', lang=lang, email=email)
             else:
                 print('Normal file!!! Proceeding with normal upload')
                 upload_file_to_cloud(file, clean_user_id, description, i)
@@ -213,12 +213,14 @@ def upload_files():
         if FAIL:
             return make_response(jsonify(fail_resp), 400)
         resp = get_response(response_type='ok', lang=lang,
+                            email=email
                             )
         return make_response(jsonify(resp), 200)
     except Exception as e:
         logging.exception("Error")
         lang = "en"
-        resp = get_response(response_type='fallback', lang=lang)
+        resp = get_response(response_type='fallback', lang=lang,
+                            email=email)
         return make_response(jsonify(resp), 500)
 
 

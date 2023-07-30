@@ -1,7 +1,7 @@
 from typing import Union
 
 def get_response(response_type: str, lang: str,
-                 email: Union[str, None]) -> dict:
+                 email: Union[str, None]=None) -> dict:
     """
     response_type = debitnummer_notfound, fallback, ok
     """

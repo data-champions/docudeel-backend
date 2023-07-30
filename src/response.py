@@ -1,7 +1,7 @@
-
+from typing import Union
 
 def get_response(response_type: str, lang: str,
-                 ) -> dict:
+                 email: Union[str, None]) -> dict:
     """
     response_type = debitnummer_notfound, fallback, ok
     """
@@ -19,9 +19,18 @@ def get_response(response_type: str, lang: str,
     file_too_large = dict(en="Your file is too large, please upload a file smaller than 5.5MB ❌",
                           nl="Uw bestand is te groot, aub een bestand kleiner dan 5.5MB uploaden ❌",
                           es="Su archivo es demasiado grande, por favor suba un archivo más pequeño que 5.5MB ❌")
-    ok_resp = dict(en=f'Your files was successfully uploaded! ✔️',
-                   nl=f'Uw bestanden is succesvol geüpload! ✔️',
-                   es=f'¡Su archivos se cargó con éxito! ✔️')
+    
+    if email is not None:
+        en_email = f'Check your email {email} for confirmation.'
+        nl_email = f'Controleer uw e-mail {email} voor bevestiging.'
+        es_email = f'Revise su correo electrónico {email} para confirmación.'
+    else:
+        en_email = 'Provide a valid email address for confirmation email.'
+        nl_email = 'Geef een geldig e-mailadres voor bevestigingsmail.'
+        es_email = 'Proporcione una dirección de correo electrónico válida para la confirmación.'
+    ok_resp = dict(en=f'Your files was successfully uploaded! ✔️ {en_email}',
+                   nl=f'Uw bestanden is succesvol geüpload! ✔️ {nl_email}' ,
+                   es=f'¡Su archivos se cargó con éxito! ✔️ {es_email}')
     resp = dict(debitnummer_notfound=debitnummer_notfound,
                 fallback=fallback_resp,
                 ok=ok_resp,

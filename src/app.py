@@ -202,14 +202,14 @@ def upload_files():
         files = glob.glob(f'{CHOOSE_YOUR_PATH}*')
         for f in files:
             os.remove(f)
-        # if email:
-        #     try:
-        #         send_confirmation_email(receiver=email,
-        #                                 description=description,
-        #                                 lang=lang)
-        #     except Exception as e:
-        #         print(e)
-        #         pass
+        if email:
+            try:
+                send_confirmation_email(receiver=email,
+                                        description=description,
+                                        lang=lang)
+            except Exception as e:
+                print(e)
+                pass
         if FAIL:
             return make_response(jsonify(fail_resp), 400)
         resp = get_response(response_type='ok', lang=lang,

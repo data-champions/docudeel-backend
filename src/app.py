@@ -1,11 +1,13 @@
 import logging
 import os.path
+import glob
+from io import BytesIO
 import os
 import json
 from flask_cors import CORS
 from flask import Flask, render_template, request, redirect, flash, jsonify, make_response
 from werkzeug.utils import secure_filename
-
+from zipfile import ZipFile
 from db import debiteur_nummer_exist, insert_record, list_debiteur_numbers
 from response import get_response
 from conf_email import send_confirmation_email
@@ -68,6 +70,15 @@ def upload_to_s3(file, filename):
         S3_BUCKET,
         filename,
     )
+
+
+
+def get_file_mb(file: FileStorage) -> float:
+    file_length = file.seek(0, os.SEEK_END)
+    file_length_mb = file_length / 1024 / 1024
+    print(f'{file_length_mb=}')
+    file.seek(0, os.SEEK_SET) # put the cursor back to first byte
+    return file_length_mb
 
 
 def upload_file_to_cloud(file: FileStorage, clean_user_id: str, description: str,
@@ -146,12 +157,51 @@ def upload_files():
             resp = get_response(response_type='debitnummer_notfound', lang=lang)
             return make_response(jsonify(resp), 400)
         logging.info("*" * 50)
-
+        
+        
+        # this is for several files
+        CHOOSE_YOUR_PATH = 'TEMP_ZIP/'
+        FAIL = False
         for i, file in enumerate(request.files.getlist("file")):
-            upload_file_to_cloud(file, clean_user_id, description, i)
-            insert_record(customer_id=clean_user_id,
-                          comment=description,
-                          dc_client_id='ras_admin')
+            print(f'{file=} {i=}')
+            print(file.content_type)
+            file_mb = get_file_mb(file)
+
+            # above 6 mb, there is a problem with the file upload
+            needs_unzipping = file_mb > 5.5
+            if file.content_type == 'application/zip' and needs_unzipping:
+                print('zip file!!! Proceeding with unzipping upload')
+                zip_handle = ZipFile(file._file)
+                zip_handle.extractall(CHOOSE_YOUR_PATH)
+                zip_handle.close()
+                file_names = os.listdir(CHOOSE_YOUR_PATH)
+                for i_file, filename in enumerate(file_names):
+                    fp = os.path.join(CHOOSE_YOUR_PATH, filename)
+                    print(fp)
+                    with open(fp, 'rb') as f:
+                        stream = BytesIO(f.read())
+                    file_storage = FileStorage(stream=stream, filename=fp)
+                    print(f'{file_storage=}')
+                    file_storage.seek(0)
+                    file_mb = get_file_mb(file_storage)
+                    print(f'SIGNLE FILE {file_mb=}')
+                    upload_file_to_cloud(file_storage, clean_user_id, description, i_file)
+                continue
+            elif file_mb > 5.5:
+                # normal file upload should fail
+                # upload_file_to_cloud(file, clean_user_id, description, i)
+                FAIL = True
+                fail_resp = get_response(response_type='file_too_large', lang=lang)
+            else:
+                print('Normal file!!! Proceeding with normal upload')
+                upload_file_to_cloud(file, clean_user_id, description, i)
+                insert_record(customer_id=clean_user_id,
+                            comment=description,
+                            dc_client_id='ras_admin')
+        # clean up storage folder
+        files = glob.glob(f'{CHOOSE_YOUR_PATH}*')
+        for f in files:
+            os.remove(f)
         if email:
             try:
                 send_confirmation_email(receiver=email,
@@ -160,7 +210,8 @@ def upload_files():
             except Exception as e:
                 print(e)
                 pass
-
+        if FAIL:
+            return make_response(jsonify(fail_resp), 400)
         resp = get_response(response_type='ok', lang=lang,
                             )
         return make_response(jsonify(resp), 200)

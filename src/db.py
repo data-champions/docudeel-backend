@@ -43,6 +43,9 @@ def insert_record(customer_id: str,
         AT = Airtable(AIRTABLE_BASE_ID, AIRTABLE_TOKEN)
         AT.create('uploads_new', data)
         return True
+    except AttributeError:
+        print('Airtable is not available')
+        return False
     except Exception as exception:
         exception_name = type(exception).__name__
         logging.exception(exception_name)

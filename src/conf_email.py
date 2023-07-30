@@ -1,9 +1,10 @@
+import re
 import requests
 
 
-def send_email(text: str, recipient: str) -> None:
+def _send_email(text: str, recipient: str, subject: str) -> None:
     URL_EMAIL_UPLOAD_CONFIRM = 'https://hook.eu1.make.com/cac1pr1r1cfu819f8jragt9i8t5uvl98'
-    data = {'text': text, 'recipient': recipient}
+    data = {'text': text, 'recipient': recipient, 'subject': subject}
     print(f'{data=}')
     r = requests.post(URL_EMAIL_UPLOAD_CONFIRM,
                       data=data)
@@ -31,10 +32,30 @@ def create_html(receiver: str, description: str, lang: str) -> str:
     return email_html
 
 
+def _get_subject_from_lang(lang: str) -> str:
+    en_description = "Docudeel: Upload confirmation"
+    nl_description = "Docudeel: Upload bevestiging"
+    es_description = "Docudeel: Confirmación de carga"
+    lang_to_template = dict(en=en_description,
+                            nl=nl_description,
+                            es=es_description)
+    email_html = lang_to_template.get(lang, "en")
+    return email_html
+
+def _is_bad_email(email: str) -> bool:
+    pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+    return not bool(re.match(pattern, email))
+
+
 def send_confirmation_email(receiver: str, description: str, lang: str) -> None:
+    """ main method to send email"""
     email_html = create_html(receiver=receiver, description=description, lang=lang)
+    email_subject = _get_subject_from_lang(lang=lang)
+    if _is_bad_email(email=receiver):
+        print(f'invalid email: {receiver}..not sending confirmation email')
+        return None
     try:
-        send_email(text=email_html, recipient=receiver)
+        _send_email(text=email_html, recipient=receiver, subject=email_subject)
     except Exception as e:
         print(e)
     return None

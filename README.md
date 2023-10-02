@@ -15,3 +15,7 @@ make send_bad_request
 docker build . -tag docudeel
 docker run --env-file ./env.docker -it docudeel 
 
+
+
+# to update contacts
+change only `data/clean_relaties.csv`

@@ -8,4 +8,4 @@ from src.slack import send_slack_message
 
 
 def test_slack_works():
-    assert send_slack_message('unit-test-docudeel')
+    assert send_slack_message('test-docu')

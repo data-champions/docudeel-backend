@@ -51,6 +51,7 @@ jobs:
           command: |
            . venv/bin/activate
            make test
+           make test_all
           name: Test app code
       - run:
           command: |

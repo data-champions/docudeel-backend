@@ -4,12 +4,11 @@ https://data-championsgroup.slack.com/apps/A0F7XDUAZ-incoming-webhooks?tab=setti
 """
 import json
 import logging
-
+from config import SLACK_URL
 
 def send_slack_message(message: str) -> bool:
     from urllib import request
-    url = "https://hooks.slack.com/services/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"
-    req = request.Request(url, method="POST")
+    req = request.Request(SLACK_URL, method="POST")
     req.add_header('Content-Type', 'application/json')
     data = {
         "text": message
@@ -29,4 +28,4 @@ def send_slack_message(message: str) -> bool:
 
 
 if __name__ == '__main__':
-    send_slack_message('test-docudeel')
+    send_slack_message('test-docu')

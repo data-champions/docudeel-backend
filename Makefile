@@ -82,6 +82,8 @@ deploy:
 test:
 	python infra/env_check.py
 
+test_all:
+	pytest testing/
 
 # deploy
 synth:

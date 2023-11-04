@@ -14,15 +14,16 @@ AIRTABLE_BASE_ID = os.environ["AIRTABLE_BASE_ID"]
 def list_debiteur_numbers() -> list:
     """Returns list of debiteur numbers"""
     with open(DATA_FP) as csvfile:
-        spamreader = csv.reader(csvfile)
-        return [row[0] for row in spamreader]
+        reader = csv.reader(csvfile)
+        return [row[0] for i, row in enumerate(reader)
+                if i > 0]
 
 
 def debiteur_nummer_exist(debiteur_id: str) -> bool:
     """Checks if user_ID exist in the DB"""
     with open(DATA_FP) as csvfile:
-        spamreader = csv.reader(csvfile)
-        for row in spamreader:
+        reader = csv.reader(csvfile)
+        for row in reader:
             if row[0] == debiteur_id:
                 return True
     return False

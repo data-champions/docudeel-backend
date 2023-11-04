@@ -21,8 +21,15 @@ import sys
 from time import sleep
 from urllib import request
 
+current_path = sys.path[0]
+parent_path = os.path.dirname(current_path)
+src_path = os.path.join(os.path.dirname(current_path), 'src')
+sys.path.append(parent_path)
+sys.path.append(src_path)
+print(sys.path)
 
-SLACK_URL = 'https://hooks.slack.com/services/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'  # noqa :E501
+from src.slack import send_slack_message
+
 
 AWS = '/usr/local/bin/aws'
 
@@ -87,13 +94,6 @@ def build_image(img_name_and_tag: str) -> None:
         out = run_bash(build_img)
     if out is None:
         raise RuntimeError("docker build failed")
-    # see if it works
-    is_built = out.endswith(img_name_and_tag)
-    if is_built:
-        print(f'Docker build succesful with: \n{out}')
-    else:
-        print(f'Docker build failed with: \n{out}')
-        sys.exit(1)
     return None
 
 
@@ -171,4 +171,4 @@ if __name__ == '__main__':
     deploy_service(config_fp=config_fp)
     # wait that the server is 100% up
     sleep(4.4 * 60)
-    print(f'deployment finished w/ {size=}!')
+    send_slack_message(f'deployment docudeel finished w/ {size=}!')

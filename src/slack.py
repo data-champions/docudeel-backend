@@ -8,7 +8,7 @@ import logging
 
 def send_slack_message(message: str) -> bool:
     from urllib import request
-    url = "https://hooks.slack.com/services/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"
+    url = "https://hooks.slack.com/services/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"
     req = request.Request(url, method="POST")
     req.add_header('Content-Type', 'application/json')
     data = {
@@ -29,4 +29,4 @@ def send_slack_message(message: str) -> bool:
 
 
 if __name__ == '__main__':
-    send_slack_message('test-docudeel')
+    send_slack_message('test-docu')

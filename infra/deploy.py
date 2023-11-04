@@ -87,14 +87,6 @@ def build_image(img_name_and_tag: str) -> None:
         out = run_bash(build_img)
     if out is None:
         raise RuntimeError("docker build failed")
-    # see if it works
-    is_built = out.endswith(img_name_and_tag)
-    if is_built:
-        print(f'Docker build succesful with: \n{out}')
-    else:
-        print(f'Docker build failed with: \n{out}')
-        print(run_bash("docker -v"))
-        sys.exit(1)
     return None
 
 

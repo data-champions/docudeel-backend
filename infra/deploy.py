@@ -20,6 +20,14 @@ import subprocess
 import sys
 from time import sleep
 from urllib import request
+
+current_path = sys.path[0]
+parent_path = os.path.dirname(current_path)
+src_path = os.path.join(os.path.dirname(current_path), 'src')
+sys.path.append(parent_path)
+sys.path.append(src_path)
+print(sys.path)
+
 from src.slack import send_slack_message
 
 

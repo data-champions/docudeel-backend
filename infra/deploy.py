@@ -20,9 +20,8 @@ import subprocess
 import sys
 from time import sleep
 from urllib import request
+from src.slack import send_slack_message
 
-
-SLACK_URL = 'https://hooks.slack.com/services/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'  # noqa :E501
 
 AWS = '/usr/local/bin/aws'
 
@@ -164,4 +163,4 @@ if __name__ == '__main__':
     deploy_service(config_fp=config_fp)
     # wait that the server is 100% up
     sleep(4.4 * 60)
-    print(f'deployment finished w/ {size=}!')
+    send_slack_message(f'deployment docudeel finished w/ {size=}!')

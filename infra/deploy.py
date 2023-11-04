@@ -93,6 +93,7 @@ def build_image(img_name_and_tag: str) -> None:
         print(f'Docker build succesful with: \n{out}')
     else:
         print(f'Docker build failed with: \n{out}')
+        print(run_bash("docker -v"))
         sys.exit(1)
     return None
 

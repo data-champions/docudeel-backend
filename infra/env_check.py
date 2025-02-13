@@ -9,6 +9,7 @@ environment = {
     "AWS_SECRET_ACCESS_KEY": os.environ['AWS_SECRET_ACCESS_KEY'],
     "AIRTABLE_BASE_ID": AIRTABLE_BASE_ID,
     "AIRTABLE_TOKEN": AIRTABLE_TOKEN,
+    "SLACK_URL": os.environ['SLACK_URL'],
 }
 
 print(f'{environment=}')

@@ -9,7 +9,7 @@ executors:
     working_directory: ~/project
     docker:
       # see https://circleci.com/developer/images/image/cimg/python
-      - image: cimg/3.10.8-node
+      - image: cimg/python:3.10.8-node
 
 commands:
   setup-environment:

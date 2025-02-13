@@ -66,6 +66,7 @@ def make_config(service_name: str,
                 "AWS_SECRET_ACCESS_KEY": os.environ['docudeel_key'],
                 "AIRTABLE_BASE_ID": AIRTABLE_BASE_ID,
                 "AIRTABLE_TOKEN": AIRTABLE_TOKEN,
+                "SLACK_URL": os.environ['SLACK_URL'],
             }
         }
     }

@@ -18,4 +18,4 @@ docker run --env-file ./env.docker -it docudeel
 
 
 # to update contacts
-change only `data/clean_relaties.csv`
+change only `data/update_client_db.py` when Enrique gives a new file.

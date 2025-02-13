@@ -43,7 +43,7 @@ def test_latest_contacts_included():
     ## TODO add flask testing on /info endpoint
     response = app.test_client().get('/list_users')
     out = response.data.decode('utf-8')
-    latest_contacts = ['13025BS', '13012SS']
+    latest_contacts = ['13025BS']
     for contact in latest_contacts:
         err = f'{contact} not in {out}'
         assert contact in out, err

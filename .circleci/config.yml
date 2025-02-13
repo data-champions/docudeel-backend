@@ -8,7 +8,8 @@ executors:
   python:
     working_directory: ~/project
     docker:
-      - image: cimg/python:3.8.13-node
+      # see https://circleci.com/developer/images/image/cimg/python
+      - image: cimg/python:3.10.8-node
 
 commands:
   setup-environment:
@@ -62,7 +63,7 @@ jobs:
   
   deploy:
     docker:
-      - image: cimg/python:3.8.13-node
+      - image: cimg/python:3.10.8-node
     steps:
        - checkout
        - setup-environment
@@ -96,7 +97,7 @@ jobs:
 
   deploy-report:
     docker:
-      - image: cimg/python:3.8.13-node
+      - image: cimg/python:3.10.8-node
     steps:
        - checkout
        - setup-environment

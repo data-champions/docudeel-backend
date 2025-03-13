@@ -18,4 +18,5 @@ docker run --env-file ./env.docker -it docudeel
 
 
 # to update contacts
-change only `data/update_client_db.py` when Enrique gives a new file.
+Modify only `"data/Kopie van clean_relaties(1) updated.xlsx"` and run 
+`python data/update_client_db.py` to update files.
